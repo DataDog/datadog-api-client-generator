@@ -12,3 +12,7 @@ def snake_case(value: str) -> str:
     value = PATTERN_WHITESPACE.sub("_", value)
     value = value.rstrip("_")
     return PATTERN_DOUBLE_UNDERSCORE.sub("_", value)
+
+
+def camel_case(value):
+    return "".join(x.title() for x in snake_case(value).split("_"))
