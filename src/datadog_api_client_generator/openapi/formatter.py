@@ -14,5 +14,5 @@ def snake_case(value: str) -> str:
     return PATTERN_DOUBLE_UNDERSCORE.sub("_", value)
 
 
-def camel_case(value):
+def camel_case(value: str) -> str:
     return "".join(x.title() for x in snake_case(value).split("_"))

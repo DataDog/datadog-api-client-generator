@@ -21,7 +21,7 @@ class BaseSchema(BaseModel):
     extensions: Optional[Dict[str, Any]] = None
 
     @model_validator(mode="before")
-    def _enrich_schema(cls, v):
+    def _enrich_schema(cls, v: Dict) -> Dict:
         # inject name from $ref
         if not v.get("name"):
             name = get_name_from_json_ref(v)

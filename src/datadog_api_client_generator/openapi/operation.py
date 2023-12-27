@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -38,7 +38,7 @@ class OperationObject(BaseModel):
     servers: Optional[List[Server]] = None
     security: Optional[List[Dict[str, List[str]]]] = None
 
-    def get_parameters(self):
+    def get_parameters(self) -> Iterator[str, Union[Parameter, RequestBody]]:
         if self.parameters:
             for content in self.parameters:
                 if "schema" in content:
@@ -60,7 +60,7 @@ class OperationObject(BaseModel):
             else:
                 yield "body", self.requestBody
 
-    def accept_headers(self):
+    def accept_headers(self) -> List[str]:
         seen = []
         for response in self.responses.values():
             if response.content:
