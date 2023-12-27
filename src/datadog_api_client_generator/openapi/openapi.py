@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Optional, Union
-from pydantic import BaseModel, Field, model_validator
 
-from .utils import StrBool, get_name
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
+from pydantic import BaseModel, Field, PlainValidator, model_validator
+
+from .utils import get_name_from_json_ref, StrBool
 
 
 class BaseSchema(BaseModel):
@@ -23,7 +24,7 @@ class BaseSchema(BaseModel):
     def _enrich_schema(cls, v):
         # inject name from $ref
         if not v.get("name"):
-            name = get_name(v)
+            name = get_name_from_json_ref(v)
             if name:
                 v["name"] = name
 

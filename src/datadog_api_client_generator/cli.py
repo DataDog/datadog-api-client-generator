@@ -3,7 +3,7 @@ import pathlib
 
 import click
 
-from .openapi.utils import load
+from .openapi.utils import load_deref_yaml
 from .openapi.openapi import OpenAPI
 
 
@@ -25,10 +25,10 @@ pp = pprint.PrettyPrinter()
 )
 def cli(specs, output):
     for p in specs:
-        spec = load(p)
+        spec = load_deref_yaml(p)
         spec = OpenAPI.model_validate(spec)
         print("--------------------------------------------------------")
-        pp.pprint(spec.model_dump())
+        # pp.pprint(spec.model_dump())
 
         for k, v in spec.components.schemas.items():
             print(f"{k} -- type ::: ", type(v))
