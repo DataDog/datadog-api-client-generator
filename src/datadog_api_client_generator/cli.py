@@ -28,8 +28,10 @@ def cli(specs, output):
         spec = load_deref_yaml(p)
         spec = OpenAPI.model_validate(spec)
         print("--------------------------------------------------------")
-        # pp.pprint(spec.model_dump())
+        
+        path = spec.paths.get("/api/v1/dashboard/lists/manual")
+        pp.pprint(path.model_dump())
 
-        for k, v in spec.components.schemas.items():
-            print(f"{k} -- type ::: ", type(v))
+        # for k, v in spec.components.schemas.items():
+        #     print(f"{k} -- type ::: ", type(v))
         print("--------------------------------------------------------")

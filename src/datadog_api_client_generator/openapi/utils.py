@@ -1,7 +1,7 @@
 import yaml
 import pathlib
-
 from typing import Annotated
+
 from pydantic import PlainValidator
 from jsonref import JsonRef
 
