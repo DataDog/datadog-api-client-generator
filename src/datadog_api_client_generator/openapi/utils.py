@@ -6,6 +6,9 @@ from pydantic import PlainValidator
 from jsonref import JsonRef
 
 
+HEADER_ANY_TYPE = "*/*"
+
+
 StrBool = Annotated[str, PlainValidator(lambda v: {"true": True, "false": False}[str(v).lower()])]
 
 

@@ -23,15 +23,17 @@ pp = pprint.PrettyPrinter()
     type=click.Path(path_type=pathlib.Path),
     required=True,
 )
-def cli(specs, output):
-    for p in specs:
+@click.option("-l", "--language", type=click.Choice(["python"]), required=True)
+def cli(*args, **kwargs):
+    for p in kwargs.get("specs"):
         spec = load_deref_yaml(p)
         spec = OpenAPI.model_validate(spec)
         print("--------------------------------------------------------")
-        
-        path = spec.paths.get("/api/v1/dashboard/lists/manual")
-        pp.pprint(path.post.model_dump())
+
+        # path = spec.paths.get("/api/v1/dashboard/lists/manual")
+        # pp.pprint(path.post.accept_headers())
 
         # for k, v in spec.components.schemas.items():
         #     print(f"{k} -- type ::: ", type(v))
+
         print("--------------------------------------------------------")

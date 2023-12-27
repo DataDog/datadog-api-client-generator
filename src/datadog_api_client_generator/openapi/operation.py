@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from .schema import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
 from .parameter import Parameter
-from .utils import StrBool
+from .utils import HEADER_ANY_TYPE, StrBool
 from .shared import ExternalDocs, Server
 
 
@@ -59,6 +59,17 @@ class OperationObject(BaseModel):
                     )
             else:
                 yield "body", self.requestBody
+
+    def accept_headers(self):
+        seen = []
+        for response in self.responses.values():
+            if response.content:
+                for media_type in response.content.keys():
+                    if media_type not in seen:
+                        seen.append(media_type)
+            else:
+                return [HEADER_ANY_TYPE]
+        return seen
 
 
 class PathsItemObject(BaseModel):
