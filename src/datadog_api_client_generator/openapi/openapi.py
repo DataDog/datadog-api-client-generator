@@ -28,6 +28,7 @@ class BaseSchema(BaseModel):
             if name:
                 v["name"] = name
 
+        # Remap extensions
         extensions = {}
         for k in list(v.keys()):
             if k.startswith("x-"):
@@ -36,7 +37,6 @@ class BaseSchema(BaseModel):
         if extensions:
             v["extensions"] = extensions
 
-        # Remap extensions
         return v
 
 
