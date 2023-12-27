@@ -16,6 +16,7 @@ click = "^8.1.7"
 generate = "datadog_api_client_generator.cli:cli"
 
 [tool.poetry.dev-dependencies]
+pytest = "^7.4.3"
 
 [build-system]
 requires = ["poetry-core"]
