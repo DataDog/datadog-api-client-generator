@@ -8,6 +8,7 @@ from .parameter import Parameter
 from .utils import StrBool
 from .shared import ExternalDocs, Server
 
+
 class MediaObject(BaseModel):
     schema: Optional[Union[AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]] = None
     example: Optional[Any] = None
@@ -33,9 +34,31 @@ class OperationObject(BaseModel):
     deprecated: Optional[StrBool] = None
     externalDocs: Optional[ExternalDocs] = None
     requestBody: Optional[RequestBody] = None
-    responses: Optional[Dict[str, ResponseObject]]
+    responses: Optional[Dict[str, ResponseObject]] = None
     servers: Optional[List[Server]] = None
     security: Optional[List[Dict[str, List[str]]]] = None
+
+    def get_parameters(self):
+        if self.parameters:
+            for content in self.parameters:
+                if "schema" in content:
+                    yield content["name"], content
+
+        if self.requestBody:
+            if "multipart/form-data" in self.requestBody.content:
+                parent = self.requestBody.content["multipart/form-data"].schema
+                for name, schema in parent.properties.items():
+                    yield name, Parameter(
+                        **{
+                            "in": "form",
+                            "schema": schema,
+                            "name": name,
+                            "description": schema.description,
+                            "required": name in parent.get("required", []),
+                        }
+                    )
+            else:
+                yield "body", self.requestBody
 
 
 class PathsItemObject(BaseModel):
