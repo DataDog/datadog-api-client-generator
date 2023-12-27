@@ -38,40 +38,16 @@ class OperationObject(BaseModel):
     security: Optional[List[Dict[str, List[str]]]] = None
 
 
-class _PathsItemObjectBase(BaseModel):
+class PathsItemObject(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
     servers: Optional[List[Server]] = None
     parameters: Optional[List[Parameter]] = None
-
-
-class GetPath(_PathsItemObjectBase):
-    get: OperationObject
-
-
-class PutPath(_PathsItemObjectBase):
-    put: OperationObject
-
-
-class PostPath(_PathsItemObjectBase):
-    post: OperationObject
-
-
-class DeletePath(_PathsItemObjectBase):
-    delete: OperationObject
-
-
-class OptionsPath(_PathsItemObjectBase):
-    options: OperationObject
-
-
-class HeadPath(_PathsItemObjectBase):
-    head: OperationObject
-
-
-class PatchPath(_PathsItemObjectBase):
-    patch: OperationObject
-
-
-class TracePath(_PathsItemObjectBase):
-    trace: OperationObject
+    get: Optional[OperationObject] = None
+    put: Optional[OperationObject] = None
+    post: Optional[OperationObject] = None
+    delete: Optional[OperationObject] = None
+    options: Optional[OperationObject] = None
+    head: Optional[OperationObject] = None
+    patch: Optional[OperationObject] = None
+    trace: Optional[OperationObject] = None

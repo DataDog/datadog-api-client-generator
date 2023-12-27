@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from .operation import DeletePath, GetPath, HeadPath, OptionsPath, PatchPath, PostPath, PutPath, TracePath
+from .operation import PathsItemObject
 from .shared import ExternalDocs, Server
 from .schema import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
 from .parameter import Parameter
@@ -37,7 +37,7 @@ class Tag(BaseModel):
 class OpenAPI(BaseModel):
     openapi: str
     info: OpenAPIInfo
-    paths: Dict[str, Union[GetPath, PutPath, PostPath, DeletePath, OptionsPath, HeadPath, PatchPath, TracePath]]
+    paths: Dict[str, PathsItemObject]
     components: Optional[Components] = None
     servers: Optional[List[Server]] = None
     tags: Optional[List[Tag]] = None

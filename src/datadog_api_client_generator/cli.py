@@ -30,7 +30,7 @@ def cli(specs, output):
         print("--------------------------------------------------------")
         
         path = spec.paths.get("/api/v1/dashboard/lists/manual")
-        pp.pprint(path.model_dump())
+        pp.pprint(path.post.model_dump())
 
         # for k, v in spec.components.schemas.items():
         #     print(f"{k} -- type ::: ", type(v))
