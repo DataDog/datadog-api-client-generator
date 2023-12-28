@@ -5,7 +5,14 @@ from pydantic import BaseModel
 
 from datadog_api_client_generator.openapi.operation_model import PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
+from datadog_api_client_generator.openapi.schema_model import (
+    AllOfSchema,
+    AnyOfSchema,
+    BaseSchema,
+    EnumSchema,
+    ObjectSchema,
+    OneOfSchema,
+)
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 
 

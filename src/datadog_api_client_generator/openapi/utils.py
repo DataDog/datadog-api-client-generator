@@ -1,5 +1,5 @@
 import yaml
-import pathlib
+from pathlib import PosixPath
 from typing import Annotated, Dict, Optional
 
 from pydantic import PlainValidator
@@ -12,7 +12,7 @@ HEADER_ANY_TYPE = "*/*"
 StrBool = Annotated[str, PlainValidator(lambda v: {"true": True, "false": False}[str(v).lower()])]
 
 
-def load_deref_yaml(path: pathlib.PosixPath) -> Dict:
+def load_deref_yaml(path: PosixPath) -> Dict:
     with path.open() as fp:
         return JsonRef.replace_refs(yaml.load(fp, Loader=yaml.CSafeLoader))
 
