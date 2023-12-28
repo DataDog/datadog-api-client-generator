@@ -3,21 +3,14 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 
 from pydantic import BaseModel
 
-from datadog_api_client_generator.openapi.schema_model import (
-    AllOfSchema,
-    AnyOfSchema,
-    BaseSchema,
-    EnumSchema,
-    ObjectSchema,
-    OneOfSchema,
-)
+from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, StrBool
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
 
 
 class MediaObject(BaseModel):
-    schema: Optional[Union[AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]] = None
+    schema: Optional[Schema] = None
     example: Optional[Any] = None
 
 
@@ -45,7 +38,7 @@ class OperationObject(BaseModel):
     servers: Optional[List[Server]] = None
     security: Optional[List[Dict[str, List[str]]]] = None
 
-    def get_parameters(self) -> Iterator[str, Union[Parameter, RequestBody]]:
+    def get_parameters(self) -> Iterator[str, Parameter]:
         if self.parameters:
             for content in self.parameters:
                 if "schema" in content:
@@ -65,9 +58,20 @@ class OperationObject(BaseModel):
                         }
                     )
             else:
-                yield "body", self.requestBody
+                for content in self.requestBody.content.values():
+                    if content.schema:
+                        yield "body", Parameter(
+                            **{
+                                "in": "",
+                                "schema": content.schema,
+                                "name": "body",
+                                "description": content.schema.description,
+                                "required": self.requestBody.required,
+                            }
+                        )
+                    break
 
-    def accept_headers(self) -> List[str]:
+    def get_accept_headers(self) -> List[str]:
         seen = []
         for response in self.responses.values():
             if response.content:
@@ -77,6 +81,13 @@ class OperationObject(BaseModel):
             else:
                 return [HEADER_ANY_TYPE]
         return seen
+
+    def get_return_schema(self) -> Optional[Schema]:
+        for response in self.responses.values():
+            for content in response.content.values():
+                if content.schema:
+                    return content.schema
+            return None
 
 
 class PathsItemObject(BaseModel):

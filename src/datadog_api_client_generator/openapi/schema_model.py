@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
 from pydantic import BaseModel, model_validator
 
@@ -41,7 +41,7 @@ class BaseSchema(BaseModel):
 
 
 class OneOfSchema(BaseSchema):
-    oneOf: List[BaseSchema]
+    oneOf: List[Schema]
 
 
 class EnumSchema(BaseSchema):
@@ -49,12 +49,19 @@ class EnumSchema(BaseSchema):
 
 
 class AllOfSchema(BaseSchema):
-    allOf: List[BaseSchema]
+    allOf: List[Schema]
 
 
 class AnyOfSchema(BaseSchema):
-    anyOf: List[BaseSchema]
+    anyOf: List[Schema]
+
+
+class ArraySchema(BaseSchema):
+    items: Schema
 
 
 class ObjectSchema(BaseSchema):
-    properties: Dict[str, BaseSchema]
+    properties: Dict[str, Schema]
+
+
+Schema: TypeAlias = Union[ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]

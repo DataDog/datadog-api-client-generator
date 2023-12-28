@@ -12,6 +12,7 @@ PyYAML = "^6.0"
 jsonref = "^1.1.0"
 click = "^8.1.7"
 jinja2 = "^3.1.2"
+m2r2 = "0.3.3.post2"
 
 [tool.poetry.scripts]
 generate = "datadog_api_client_generator.cli:cli"

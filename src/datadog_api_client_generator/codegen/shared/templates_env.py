@@ -41,3 +41,5 @@ def build_default_jinja2_env() -> Environment:
     env = Environment(loader=FileSystemLoader(templates_dir))
     env.filters.update(default_filters())
     env.globals.update(default_globals())
+
+    return env

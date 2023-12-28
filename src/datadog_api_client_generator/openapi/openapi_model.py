@@ -5,14 +5,7 @@ from pydantic import BaseModel
 
 from datadog_api_client_generator.openapi.operation_model import PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import (
-    AllOfSchema,
-    AnyOfSchema,
-    BaseSchema,
-    EnumSchema,
-    ObjectSchema,
-    OneOfSchema,
-)
+from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 
 
@@ -30,9 +23,7 @@ class OpenAPIInfo(BaseModel):
 
 
 class Components(BaseModel):
-    schemas: Optional[
-        Dict[str, Union[AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]]
-    ] = None
+    schemas: Optional[Dict[str, Schema]] = None
     parameters: Optional[Dict[str, Parameter]] = None
 
 
