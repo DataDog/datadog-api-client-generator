@@ -27,19 +27,18 @@ generators = {
 )
 @click.option("-g", "--generator", type=click.Choice(["python"]), required=True)
 def cli(*args, **kwargs):
-    
     specs = []
     for s in kwargs.get("specs"):
         spec = load_deref_yaml(s)
         spec = OpenAPI.model_validate(spec)
         specs.append(spec)
-        
+
     output = kwargs.get("output")
     generator_cls = generators[kwargs.get("generator")]
 
     print("--------------------------------------------------------")
-    
+
     generator = generator_cls(specs=specs, output=output)
     generator.generate()
-    
+
     print("--------------------------------------------------------")

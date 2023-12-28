@@ -1,4 +1,4 @@
-from datadog_api_client_generator.codegen.shared.utils import snake_case, camel_case
+from datadog_api_client_generator.codegen.shared.templates_env import snake_case, camel_case
 
 
 def test_snake_case():
