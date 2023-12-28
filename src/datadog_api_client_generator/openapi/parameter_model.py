@@ -3,8 +3,8 @@ from typing import Any, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from .schema import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
-from .utils import StrBool
+from datadog_api_client_generator.openapi.schema_model import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
+from datadog_api_client_generator.openapi.utils import StrBool
 
 
 class Parameter(BaseModel):

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, model_validator
 
-from .utils import get_name_from_json_ref, StrBool
+from datadog_api_client_generator.openapi.utils import get_name_from_json_ref, StrBool
 
 
 class BaseSchema(BaseModel):

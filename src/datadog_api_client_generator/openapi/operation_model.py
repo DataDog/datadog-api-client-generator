@@ -3,10 +3,10 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 
 from pydantic import BaseModel
 
-from .schema import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
-from .parameter import Parameter
-from .utils import HEADER_ANY_TYPE, StrBool
-from .shared import ExternalDocs, Server
+from datadog_api_client_generator.openapi.schema_model import AllOfSchema, AnyOfSchema, BaseSchema, EnumSchema, ObjectSchema, OneOfSchema
+from datadog_api_client_generator.openapi.parameter_model import Parameter
+from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, StrBool
+from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
 
 
 class MediaObject(BaseModel):

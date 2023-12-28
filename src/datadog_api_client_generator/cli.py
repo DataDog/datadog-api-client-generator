@@ -3,8 +3,8 @@ import pathlib
 
 import click
 
-from .openapi.utils import load_deref_yaml
-from .openapi.openapi import OpenAPI
+from datadog_api_client_generator.openapi.utils import load_deref_yaml
+from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
 @click.command()
