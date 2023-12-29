@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import PosixPath
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, Optional
 
 from jinja2 import Environment
 
@@ -21,7 +21,7 @@ class BaseCodegen(ABC):
     def __init__(self, specs: Dict[str, OpenAPI], output: PosixPath) -> None:
         self.specs: Dict[str, OpenAPI] = specs
         self.output: PosixPath = output
-        self.env: Environment = build_default_jinja2_env()
+        self.env: Environment = build_default_jinja2_env(specs)
 
         if self.generator_config.additional_filters:
             self.env.filters.update(self.generator_config.additional_filters)

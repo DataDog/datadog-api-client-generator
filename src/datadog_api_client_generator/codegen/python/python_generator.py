@@ -1,7 +1,8 @@
-from typing import Any, Dict
-
 from datadog_api_client_generator.codegen.python import utils
 from datadog_api_client_generator.codegen.shared.base_codegen import BaseCodegen, GeneratorConfig
+
+
+PACKAGE_NAME = "datadog_api_client"
 
 
 class PythonGenerator(BaseCodegen):
@@ -12,7 +13,9 @@ class PythonGenerator(BaseCodegen):
             "attribute_name": utils.attribute_name,
             "return_type": utils.return_type,
         },
-        additional_globals={},
+        additional_globals={
+            "package": PACKAGE_NAME,
+        },
     )
 
     def generate(self) -> None:
@@ -29,3 +32,23 @@ class PythonGenerator(BaseCodegen):
         #     "model_utils.py": self.env.get_template("model_utils.j2"),
         #     "rest.py": self.env.get_template("rest.j2"),
         # }
+
+        # for name, template in extra_files.items():
+        #     filename = top_package / name
+        #     with filename.open("w") as fp:
+        #         fp.write(template.render())
+
+        top_package = self.output / PACKAGE_NAME
+        top_package.mkdir(parents=True, exist_ok=True)
+
+        for version, spec in self.specs.items():
+            self.env.globals["version"] = version
+            utils.set_api_version(version)
+
+            # apis = spec.apis()
+            models = spec.models()
+
+            package = top_package / version
+            # package.mkdir(exist_ok=True)
+
+            print(models.keys())

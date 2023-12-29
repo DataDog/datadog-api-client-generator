@@ -11,50 +11,8 @@ from datadog_api_client_generator.openapi.schema_model import EnumSchema, OneOfS
 KEYWORDS = set(keyword.kwlist)
 KEYWORDS.add("property")
 KEYWORDS.add("cls")
+
 EDGE_CASES = {"IdP": "Idp", "AuthNMapping": "AuthnMapping", "AuthN ": "Authn ", "IoT": "Iot", "SLOs": "Slos"}
-
-
-def safe_snake_case(value: str) -> str:
-    for token, replacement in EDGE_CASES.items():
-        value = value.replace(token, replacement)
-    return snake_case(value)
-
-
-def escape_reserved_keyword(word: str) -> str:
-    """
-    Escape reserved language keywords like openapi generator does it
-    :param word: Word to escape
-    :return: The escaped word if it was a reserved keyword, the word unchanged otherwise
-    """
-    if word in KEYWORDS:
-        return f"_{word}"
-    return word
-
-
-def attribute_name(attribute: str) -> str:
-    return escape_reserved_keyword(snake_case(attribute))
-
-
-class CustomRenderer(m2r2.RestRenderer):
-    def double_emphasis(self, text: Any) -> Any:
-        if "``" in text:
-            text = text.replace("\\ ``", "").replace("``\\ ", "")
-        if "`_" in text:
-            return text
-        return "\\ **{}**\\ ".format(text)
-
-    def header(self, text, level, raw=None) -> str:
-        return "\n{}\n".format(self.double_emphasis(text))
-
-
-def docstring(text) -> Any:
-    return (
-        m2r2.convert(text.replace("\\n", "\\\\n"), renderer=CustomRenderer())[1:-1]
-        .replace("\\ ", " ")
-        .replace("\\`", "\\\\`")
-        .replace("\n\n\n", "\n\n")
-    )
-
 
 WHITELISTED_LIST_MODELS = {
     "v1": (
@@ -100,9 +58,55 @@ WHITELISTED_LIST_MODELS = {
 }
 
 
+def safe_snake_case(value: str) -> str:
+    for token, replacement in EDGE_CASES.items():
+        value = value.replace(token, replacement)
+    return snake_case(value)
+
+
+def escape_reserved_keyword(word: str) -> str:
+    """
+    Escape reserved language keywords like openapi generator does it
+    :param word: Word to escape
+    :return: The escaped word if it was a reserved keyword, the word unchanged otherwise
+    """
+    if word in KEYWORDS:
+        return f"_{word}"
+    return word
+
+
+def attribute_name(attribute: str) -> str:
+    return escape_reserved_keyword(snake_case(attribute))
+
+
+class CustomRenderer(m2r2.RestRenderer):
+    def double_emphasis(self, text: Any) -> Any:
+        if "``" in text:
+            text = text.replace("\\ ``", "").replace("``\\ ", "")
+        if "`_" in text:
+            return text
+        return "\\ **{}**\\ ".format(text)
+
+    def header(self, text, level, raw=None) -> str:
+        return "\n{}\n".format(self.double_emphasis(text))
+
+
+def docstring(text) -> Any:
+    return (
+        m2r2.convert(text.replace("\\n", "\\\\n"), renderer=CustomRenderer())[1:-1]
+        .replace("\\ ", " ")
+        .replace("\\`", "\\\\`")
+        .replace("\n\n\n", "\n\n")
+    )
+
+
+def set_api_version(version):
+    global API_VERSION
+    API_VERSION = version
+
+
 def is_list_model_whitelisted(name):
-    pass
-    # return name in WHITELISTED_LIST_MODELS[API_VERSION]
+    return name in WHITELISTED_LIST_MODELS[API_VERSION]
 
 
 def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = False):

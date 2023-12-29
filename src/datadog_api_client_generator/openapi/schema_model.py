@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
+from jsonref import JsonRef
 from pydantic import BaseModel, model_validator
 
 from datadog_api_client_generator.openapi.utils import get_name_from_json_ref, StrBool
@@ -17,25 +18,26 @@ class BaseSchema(BaseModel):
     deprecated: Optional[StrBool] = None
     example: Optional[Any] = None
     nullable: Optional[StrBool] = None
-    additionalProperties: Optional[Any] = None
+    additionalProperties: Optional[Union[bool, Schema]] = None
     extensions: Optional[Dict[str, Any]] = None
 
     @model_validator(mode="before")
     def _enrich_schema(cls, v: Dict) -> Dict:
-        # inject name from $ref
-        if not v.get("name"):
-            name = get_name_from_json_ref(v)
-            if name:
-                v["name"] = name
+        if type(v) == JsonRef:
+            # inject name from $ref
+            if not v.get("name"):
+                name = get_name_from_json_ref(v)
+                if name:
+                    v["name"] = name
 
-        # Remap extensions
-        extensions = {}
-        for k in list(v.keys()):
-            if k.startswith("x-"):
-                extensions[k] = v[k]
-                del v[k]
-        if extensions:
-            v["extensions"] = extensions
+            # Remap extensions
+            extensions = {}
+            for k in list(v.keys()):
+                if k.startswith("x-"):
+                    extensions[k] = v[k]
+                    del v[k]
+            if extensions:
+                v["extensions"] = extensions
 
         return v
 
