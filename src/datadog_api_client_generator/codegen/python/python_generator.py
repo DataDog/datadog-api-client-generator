@@ -45,8 +45,7 @@ class PythonGenerator(BaseCodegen):
             self.env.globals["version"] = version
             utils.set_api_version(version)
 
-            apis = spec.apis_by_tag()
-
+            apis = spec.group_apis_by_tag()
             models = spec.schemas_by_name()
 
             print(models.keys())
