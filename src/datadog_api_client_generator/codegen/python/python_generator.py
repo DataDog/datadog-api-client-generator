@@ -46,16 +46,20 @@ class PythonGenerator(BaseCodegen):
             utils.set_api_version(version)
 
             apis = spec.apis_by_tag()
-            models = spec.models()
 
-            package = top_package / version
-            package.mkdir(exist_ok=True)
+            models = spec.schemas_by_name()
 
-            tags_by_name = spec.tags_by_name()
+            print(models.keys())
+            print(len(models.keys()))
 
-            for name, operations in apis.items():
-                filename = utils.safe_snake_case(name) + "_api.py"
-                api_path = package / "api" / filename
-                api_path.parent.mkdir(parents=True, exist_ok=True)
-                with api_path.open("w") as fp:
-                    fp.write(api_j2.render(name=name, operations=operations, description=tags_by_name[name].description))
+            # package = top_package / version
+            # package.mkdir(exist_ok=True)
+
+            # tags_by_name = spec.tags_by_name()
+
+            # for name, operations in apis.items():
+            #     filename = utils.safe_snake_case(name) + "_api.py"
+            #     api_path = package / "api" / filename
+            #     api_path.parent.mkdir(parents=True, exist_ok=True)
+            #     with api_path.open("w") as fp:
+            #         fp.write(api_j2.render(name=name, operations=operations, description=tags_by_name[name].description))

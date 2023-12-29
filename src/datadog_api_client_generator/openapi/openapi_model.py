@@ -43,91 +43,6 @@ class OpenAPI(BaseModel):
     externalDocs: Optional[ExternalDocs] = None
     security: Optional[List[Dict[str, List[str]]]] = None
 
-    def child_models(
-        self, schema: Schema, alternative_name: str = None, seen: Optional[bool] = None
-    ) -> Dict[str, Schema]:
-        seen = seen or set()
-        name = schema.name or alternative_name
-        schema_type = type(schema)
-
-        if name in seen:
-            return
-
-        has_sub_models = False
-        if schema_type == OneOfSchema:
-            for child in schema.oneOf:
-                sub_models = list(self.child_models(child, seen=seen))
-                if sub_models:
-                    has_sub_models = True
-                    yield from sub_models
-            if not has_sub_models:
-                return
-
-        if has_sub_models:
-            seen.add(name)
-            yield name, schema
-
-        if schema_type == ArraySchema:
-            yield from self.child_models(schema.items, seen=seen)
-
-        if schema_type == ObjectSchema:
-            if name is None:
-                # this is a basic map object so we don't need a type
-                return
-
-            if schema.properties:
-                seen.add(name)
-                yield name, schema
-
-            if schema.additionalProperties and name:
-                seen.add(name)
-                yield name, schema
-
-            for key, child in schema.properties.items():
-                yield from self.child_models(child, alternative_name=name + camel_case(key), seen=seen)
-
-        if schema.name and schema_type == ArraySchema:
-            seen.add(name)
-            yield name, schema
-
-        if schema_type == EnumSchema:
-            if name is None:
-                raise ValueError(f"Schema {schema} has no name")
-
-            seen.add(name)
-            yield name, schema
-
-        if schema.additionalProperties:
-            yield from self.child_models(
-                schema.additionalProperties,
-                alternative_name=name,
-                seen=seen,
-            )
-
-    def models(self) -> Dict[str, Schema]:
-        name_to_schema: Dict[str, Schema] = {}
-
-        for path in self.paths:
-            for k, v in self.paths[path]:
-                if type(v) == OperationObject:
-                    if v.parameters:
-                        for content in v.parameters:
-                            if content.schema:
-                                name_to_schema.update(dict(self.child_models(content.schema)))
-
-                    if v.requestBody:
-                        for content in v.requestBody.content.values():
-                            if content.schema:
-                                name_to_schema.update(dict(self.child_models(content.schema)))
-                    if v.responses:
-                        for response in v.responses.values():
-                            if response.content:
-                                for content in response.content.values():
-                                    if content.schema:
-                                        name_to_schema.update(dict(self.child_models(content.schema)))
-
-        return name_to_schema
-
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}
 
@@ -141,3 +56,10 @@ class OpenAPI(BaseModel):
                     operations.setdefault(tag, []).append((path, k, v))
 
         return operations
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        for path in self.paths.values():
+            schemas_by_name.update(path.schemas_by_name())
+
+        return schemas_by_name

@@ -89,6 +89,23 @@ class OperationObject(BaseModel):
                     return content.schema
             return None
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+
+        if self.requestBody:
+            for content in self.requestBody.content.values():
+                if content.schema:
+                    schemas_by_name.update(content.schema.schemas_by_name())
+
+        if self.responses:
+            for response in self.responses.values():
+                if response.content:
+                    for content in response.content.values():
+                        if content.schema:
+                            schemas_by_name.update(content.schema.schemas_by_name())
+
+        return schemas_by_name
+
 
 class PathsItemObject(BaseModel):
     summary: Optional[str] = None
@@ -103,3 +120,25 @@ class PathsItemObject(BaseModel):
     head: Optional[OperationObject] = None
     patch: Optional[OperationObject] = None
     trace: Optional[OperationObject] = None
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+
+        if self.get:
+            schemas_by_name.update(self.get.schemas_by_name())
+        if self.put:
+            schemas_by_name.update(self.put.schemas_by_name())
+        if self.post:
+            schemas_by_name.update(self.post.schemas_by_name())
+        if self.delete:
+            schemas_by_name.update(self.delete.schemas_by_name())
+        if self.options:
+            schemas_by_name.update(self.options.schemas_by_name())
+        if self.head:
+            schemas_by_name.update(self.head.schemas_by_name())
+        if self.patch:
+            schemas_by_name.update(self.patch.schemas_by_name())
+        if self.trace:
+            schemas_by_name.update(self.trace.schemas_by_name())
+
+        return schemas_by_name

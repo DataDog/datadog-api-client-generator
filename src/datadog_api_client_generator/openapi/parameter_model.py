@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Literal, Optional, Union
+from typing import Any, Dict, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -35,3 +35,10 @@ class Parameter(BaseModel):
             style = self.get("style", in_to_style[in_])
             explode = self.get("explode", True if style == "form" else False)
             return matrix.get((style, explode), "multi")
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.schema:
+            schemas_by_name.update(self.schema.schemas_by_name())
+
+        return schemas_by_name

@@ -41,29 +41,95 @@ class BaseSchema(BaseModel):
 
         return v
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        if type(self.additionalProperties) == Schema:
+            schemas_by_name.update(self.additionalProperties.schemas_by_name())
+
+        return schemas_by_name
+
 
 class OneOfSchema(BaseSchema):
     oneOf: List[Schema]
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        for oneOf in self.oneOf:
+            schemas_by_name.update(oneOf.schemas_by_name())
+
+        return schemas_by_name
 
 
 class EnumSchema(BaseSchema):
     enum: List[Union[str, int, float]]
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        return schemas_by_name
+
 
 class AllOfSchema(BaseSchema):
     allOf: List[Schema]
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        for allOf in self.allOf:
+            schemas_by_name.update(allOf.schemas_by_name())
+
+        return schemas_by_name
 
 
 class AnyOfSchema(BaseSchema):
     anyOf: List[Schema]
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        for anyOf in self.anyOf:
+            schemas_by_name.update(anyOf.schemas_by_name())
+
+        return schemas_by_name
+
 
 class ArraySchema(BaseSchema):
     items: Schema
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        schemas_by_name.update(self.items.schemas_by_name())
+
+        return schemas_by_name
+
 
 class ObjectSchema(BaseSchema):
     properties: Dict[str, Schema]
+
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+        if self.name:
+            schemas_by_name[self.name] = self
+
+        for k, p in self.properties.items():
+            schemas_by_name.update(p.schemas_by_name())
+
+        return schemas_by_name
 
 
 Schema: TypeAlias = Union[ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]
