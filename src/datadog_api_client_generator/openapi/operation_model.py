@@ -1,31 +1,29 @@
 from __future__ import annotations
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from pydantic import BaseModel
-
 from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, StrBool
-from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
+from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 
 
-class MediaObject(BaseModel):
+class MediaObject(_Base):
     schema: Optional[Schema] = None
     example: Optional[Any] = None
 
 
-class RequestBody(BaseModel):
+class RequestBody(_Base):
     content: Dict[str, MediaObject]
     description: Optional[str] = None
     required: Optional[StrBool] = None
 
 
-class ResponseObject(BaseModel):
+class ResponseObject(_Base):
     content: Optional[Dict[str, MediaObject]] = dict()
     description: Optional[str] = None
 
 
-class OperationObject(BaseModel):
+class OperationObject(_Base):
     tags: Optional[List[str]] = list()
     summary: Optional[str] = None
     description: Optional[str] = None
@@ -111,7 +109,7 @@ class OperationObject(BaseModel):
         return schemas_by_name
 
 
-class PathsItemObject(BaseModel):
+class PathsItemObject(_Base):
     summary: Optional[str] = None
     description: Optional[str] = None
     servers: Optional[List[Server]] = list()

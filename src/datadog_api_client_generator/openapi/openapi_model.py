@@ -1,39 +1,36 @@
 from __future__ import annotations
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
-from datadog_api_client_generator.codegen.shared.templates_env import camel_case
-
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
-from datadog_api_client_generator.openapi.shared_model import ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import ArraySchema, EnumSchema, ObjectSchema, OneOfSchema, Schema
+from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
+from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 
 
-class OpenAPIContact(BaseModel):
+class OpenAPIContact(_Base):
     name: Optional[str] = None
     url: Optional[str] = None
     email: Optional[str] = None
 
 
-class OpenAPIInfo(BaseModel):
+class OpenAPIInfo(_Base):
     title: Optional[str] = None
     version: Optional[str] = None
     description: Optional[str] = None
     contact: Optional[OpenAPIContact] = None
 
 
-class Components(BaseModel):
+class Components(_Base):
     schemas: Optional[Dict[str, Schema]] = dict()
     parameters: Optional[Dict[str, Parameter]] = dict()
 
 
-class Tag(BaseModel):
+class Tag(_Base):
     name: str
     description: Optional[str] = None
 
 
-class OpenAPI(BaseModel):
+class OpenAPI(_Base):
     openapi: str
     info: OpenAPIInfo
     paths: Dict[str, PathsItemObject]
