@@ -22,7 +22,7 @@ class PythonGenerator(BaseCodegen):
         api_j2 = self.env.get_template("api.j2")
         # apis_j2 = self.env.get_template("apis.j2")
         # model_j2 = self.env.get_template("model.j2")
-        # models_j2 = self.env.get_template("models.j2")
+        models_j2 = self.env.get_template("models.j2")
         # init_j2 = self.env.get_template("init.j2")
         # configuration_j2 = self.env.get_template("configuration.j2")
 
@@ -45,10 +45,17 @@ class PythonGenerator(BaseCodegen):
             self.env.globals["version"] = version
             utils.set_api_version(version)
 
-            # apis = spec.apis()
+            apis = spec.apis()
             models = spec.models()
 
             package = top_package / version
-            # package.mkdir(exist_ok=True)
+            package.mkdir(exist_ok=True)
 
-            print(models.keys())
+            tags_by_name = spec.tags_by_name()
+
+            # for name, operations in apis.items():
+            #     filename = utils.safe_snake_case(name) + "_api.py"
+            #     api_path = package / "api" / filename
+            #     api_path.parent.mkdir(parents=True, exist_ok=True)
+            #     with api_path.open("w") as fp:
+            #         fp.write(api_j2.render(name=name, operations=operations, description=tags_by_name[name].description))

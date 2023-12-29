@@ -28,7 +28,7 @@ def cli(*args, **kwargs):
         spec = load_deref_yaml(s)
         spec = OpenAPI.model_validate(spec)
 
-        specs[s] = spec
+        specs[version] = spec
 
     output = kwargs.get("output")
     generator_cls = GENERATORS[kwargs.get("generator")]

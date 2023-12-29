@@ -43,7 +43,9 @@ class OpenAPI(BaseModel):
     externalDocs: Optional[ExternalDocs] = None
     security: Optional[List[Dict[str, List[str]]]] = None
 
-    def child_models(self, schema: Schema, alternative_name: str = None, seen: Optional[bool] = None):
+    def child_models(
+        self, schema: Schema, alternative_name: str = None, seen: Optional[bool] = None
+    ) -> Dict[str, Schema]:
         seen = seen or set()
         name = schema.name or alternative_name
         schema_type = type(schema)
@@ -102,8 +104,8 @@ class OpenAPI(BaseModel):
                 seen=seen,
             )
 
-    def models(self):
-        name_to_schema = {}
+    def models(self) -> Dict[str, Schema]:
+        name_to_schema: Dict[str, Schema] = {}
 
         for path in self.paths:
             for k, v in self.paths[path]:
@@ -125,3 +127,17 @@ class OpenAPI(BaseModel):
                                         name_to_schema.update(dict(self.child_models(content.schema)))
 
         return name_to_schema
+
+    def tags_by_name(self) -> Dict[str, Tag]:
+        return {tag.name: tag for tag in self.tags}
+
+    def apis(self):
+        operations = {}
+
+        for path in self.paths:
+            for k, v in self.paths[path]:
+                if type(v) == OperationObject:
+                    tag = v.tags[0] or None
+                    operations.setdefault(tag, []).append((path, k, v))
+
+        return operations
