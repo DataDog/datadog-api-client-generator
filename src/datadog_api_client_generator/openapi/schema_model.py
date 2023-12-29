@@ -20,6 +20,13 @@ class BaseSchema(BaseModel):
     nullable: Optional[StrBool] = None
     additionalProperties: Optional[Union[bool, Schema]] = None
     extensions: Optional[Dict[str, Any]] = None
+    maxLength: Optional[int] = None
+    minLength: Optional[int] = None
+    maximum: Optional[int] = None
+    minimum: Optional[int] = None
+    pattern: Optional[str] = None
+    maxItems: Optional[int] = None
+    minItems: Optional[int] = None
 
     @model_validator(mode="before")
     def _enrich_schema(cls, v: Dict) -> Dict:
