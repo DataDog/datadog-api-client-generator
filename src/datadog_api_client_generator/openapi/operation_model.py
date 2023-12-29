@@ -40,9 +40,9 @@ class OperationObject(BaseModel):
 
     def get_parameters(self) -> Iterator[str, Parameter]:
         if self.parameters:
-            for content in self.parameters:
-                if "schema" in content:
-                    yield content["name"], content
+            for parameter in self.parameters:
+                if parameter.schema:
+                    yield parameter.name, parameter
 
         if self.requestBody:
             if "multipart/form-data" in self.requestBody.content:
@@ -53,7 +53,9 @@ class OperationObject(BaseModel):
                             "in": "form",
                             "schema": schema,
                             "name": name,
-                            "description": schema.description,
+                            "description": self.requestBody.description
+                            if self.requestBody.description
+                            else schema.description,
                             "required": name in parent.required,
                         }
                     )
@@ -65,7 +67,9 @@ class OperationObject(BaseModel):
                                 "in": "body",
                                 "schema": content.schema,
                                 "name": "body",
-                                "description": content.schema.description,
+                                "description": self.requestBody.description
+                                if self.requestBody.description
+                                else content.schema.description,
                                 "required": self.requestBody.required,
                             }
                         )

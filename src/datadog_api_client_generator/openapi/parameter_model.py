@@ -18,7 +18,7 @@ class Parameter(BaseModel):
     explode: Optional[StrBool] = None
     example: Optional[Any] = None
 
-    def collection_format(self) -> str:
+    def get_collection_format(self) -> str:
         in_to_style = {
             "query": "form",
             "path": "simple",

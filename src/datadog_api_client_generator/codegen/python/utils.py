@@ -194,7 +194,7 @@ def return_type(operation: OperationObject):
         return
 
 
-def get_type_for_parameter(parameter: Parameter, typing: bool =False):
+def get_type_for_parameter(parameter: Parameter, typing: bool = False):
     """Return Python type name for the parameter."""
     # if "content" in parameter:
     #     assert "in" not in parameter

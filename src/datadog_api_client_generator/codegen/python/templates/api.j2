@@ -19,9 +19,13 @@ from {{ package }}.model_utils import (
     UUID,
 )
 
-{%- for path, method, operation in operations  %}
-{%- for model in operation.schemas_by_name() %}
+{%- set seen_imports = {} %}
+{%- for path, method, operation in operations|sort(attribute="2.operationId")  %}
+{%- for model in operation.schemas_by_name()|sort %}
+{%- if not seen_imports.get("%s.%s.%s.%s" | format(package, version, model|safe_snake_case, model)) %}
+{% set seen_imports = seen_imports.update({"%s.%s.%s.%s" | format(package, version, model|safe_snake_case, model): True}) -%}
 from {{ package }}.{{ version }}.model.{{ model|safe_snake_case }} import {{ model }}
+{%- endif %}
 {%- endfor %}
 {%- endfor %}
 
@@ -40,7 +44,7 @@ class {{ classname }}:
         self._{{ operation.operationId|safe_snake_case }}_endpoint = _Endpoint(
             settings={
                 "response_type": {% if returnType %}({{ returnType }},){% else %}None{% endif %},
-    {%- set authMethods = operation.security if "security" in operation else openapi.security %}
+    {%- set authMethods = operation.security if operation.security else openapi[version].security %}
                 "auth": [
 {%- for auth in (authMethods or []) %}"{{ '", "'.join(auth.keys()) }}"{%- if not loop.last %}, {% endif %}{%- endfor %}],
                 "endpoint_path": "{{ path }}",
@@ -119,7 +123,7 @@ class {{ classname }}:
                     "location": "body",
                     {%- else %}
                     "attribute": "{{ name }}",
-                    "location": "{{ parameter.in }}",
+                    "location": "{{ parameter.in_ }}",
                     {%- endif %}
       {%- set collection = parameter.collection_format %}
       {%- if collection %}
