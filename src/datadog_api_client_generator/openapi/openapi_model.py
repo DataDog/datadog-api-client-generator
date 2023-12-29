@@ -41,7 +41,7 @@ class OpenAPI(BaseModel):
     servers: Optional[List[Server]] = list()
     tags: Optional[List[Tag]] = list()
     externalDocs: Optional[ExternalDocs] = None
-    security: Optional[List[Dict[str, List[str]]]] = list()
+    security: Optional[List[Dict[str, List[str]]]] = None
 
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}

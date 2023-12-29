@@ -32,8 +32,9 @@ class Parameter(BaseModel):
         }
         if type(self.schema) == ArraySchema:
             in_ = self.in_ or "query"
-            style = self.style or in_to_style[in_]
-            explode = self.explode or True if style == "form" else False
+            style = self.style if self.style else in_to_style[in_]
+            explode = self.explode if self.explode is not None else True if style == "form" else False
+
             return matrix.get((style, explode), "multi")
 
     def schemas_by_name(self) -> Dict[str, Schema]:

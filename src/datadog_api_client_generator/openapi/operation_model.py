@@ -36,7 +36,7 @@ class OperationObject(BaseModel):
     requestBody: Optional[RequestBody] = None
     responses: Optional[Dict[str, ResponseObject]] = dict()
     servers: Optional[List[Server]] = list()
-    security: Optional[List[Dict[str, List[str]]]] = list()
+    security: Optional[List[Dict[str, List[str]]]] = None
 
     def get_parameters(self) -> Iterator[str, Parameter]:
         if self.parameters:
