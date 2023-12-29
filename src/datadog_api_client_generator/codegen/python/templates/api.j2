@@ -18,8 +18,11 @@ from {{ package }}.model_utils import (
     unset,
     UUID,
 )
-{%- for model in get_api_models(operations) %}
+
+{%- for path, method, operation in operations  %}
+{%- for model in operation.schemas_by_name() %}
 from {{ package }}.{{ version }}.model.{{ model|safe_snake_case }} import {{ model }}
+{%- endfor %}
 {%- endfor %}
 
 {% set classname = name.replace(" ", "") + "Api" %}
@@ -51,7 +54,7 @@ class {{ classname }}:
                     {
                         "url": "{{ server.url }}",
                         "variables": {
-{%- for name, variable in server.get("variables", {}).items() %}
+{%- for name, variable in server.variables.items() %}
                             "{{ name }}": {
                                 "description": "{{ variable.description }}",
                                 "default_value": "{{ variable.default }}",
@@ -73,7 +76,7 @@ class {{ classname }}:
 {%- endif %}
             },
             params_map={
-      {%- for name, parameter in operation.parameters %}
+      {%- for name, parameter in operation.get_parameters() %}
       {%- set schema = parameter.schema %}
                 "{{ name|attribute_name }}": {
                     {%- if parameter.required %}
@@ -139,17 +142,17 @@ class {{ classname }}:
 
 {%- for path, method, operation in operations|sort(attribute="2.operationId") %}
 {%- set returnType = operation|return_type %}
-    def {{ operation.operationId|safe_snake_case }}(self, {% for name, parameter in operation.parameters if parameter.required %}{{name|attribute_name}}: {{ get_type_for_parameter(parameter, typing=True) }}, {% endfor %}{% for name, parameter in operation.parameters if not parameter.required %}{% if loop.first %}*, {% endif %}{{name|attribute_name}}: Union[{{ get_type_for_parameter(parameter, typing=True) }}, UnsetType]=unset, {% endfor %}) -> {% if returnType %}{{ returnType.replace("[", "List[") }}{% else %}None{% endif %}:
+    def {{ operation.operationId|safe_snake_case }}(self, {% for name, parameter in operation.get_parameters() if parameter.required %}{{name|attribute_name}}: {{ get_type_for_parameter(parameter, typing=True) }}, {% endfor %}{% for name, parameter in operation.get_parameters() if not parameter.required %}{% if loop.first %}*, {% endif %}{{name|attribute_name}}: Union[{{ get_type_for_parameter(parameter, typing=True) }}, UnsetType]=unset, {% endfor %}) -> {% if returnType %}{{ returnType.replace("[", "List[") }}{% else %}None{% endif %}:
         """{{ operation.summary|indent(8) }}.{% if operation.deprecated %} **Deprecated**.{% endif %}
 {% if operation.description %}
         {{ operation.description|docstring|indent(8) }}
 {% endif %}
-{%- for name, parameter in operation.parameters if parameter.required %}
+{%- for name, parameter in operation.get_parameters() if parameter.required %}
 {%- if parameter.description %}
         :param {{ name|attribute_name }}: {{ parameter.description|docstring|indent(12) }}{% if parameter.default %} Defaults to {{ parameter.default }}.{% endif %}{% endif %}
         :type {{ name|attribute_name }}: {{ get_type_for_parameter(parameter) }}
 {%- endfor %}
-{%- for name, parameter in operation.parameters if not parameter.required %}
+{%- for name, parameter in operation.get_parameters() if not parameter.required %}
 {%- if parameter.description %}
         :param {{ name|attribute_name }}: {{ parameter.description|docstring|indent(12) }}{%- if parameter.default %} If omitted the server will use the default value of {{ parameter.default }}.{% endif %}{% endif %}
         :type {{ name|attribute_name }}: {{ get_type_for_parameter(parameter) }}, optional
@@ -159,7 +162,7 @@ class {{ classname }}:
         :rtype: {% if returnType %}{{ returnType }}{% else %}None{% endif %}
         """
         kwargs: Dict[str, Any] = {}
-{%- for name, parameter in operation.parameters %}
+{%- for name, parameter in operation.get_parameters() %}
 {%- if not parameter.required %}
         if {{ name|attribute_name }} is not unset:
             kwargs["{{ name|attribute_name }}"] = {{ name|attribute_name }}
@@ -174,17 +177,17 @@ class {{ classname }}:
     {%- if operation["x-pagination"] %}
     {%- set pagination = operation["x-pagination"] %}
 
-    def {{ operation.operationId|safe_snake_case }}_with_pagination(self, {% for name, parameter in operation.parameters if parameter.required %}{{name|attribute_name}}: {{ get_type_for_parameter(parameter, typing=True) }}, {% endfor %}{% for name, parameter in operation.parameters if not parameter.required %}{% if loop.first %}*, {% endif %}{{name|attribute_name}}: Union[{{ get_type_for_parameter(parameter, typing=True) }}, UnsetType]=unset, {% endfor %}) -> collections.abc.Iterable[{{ get_type_at_path(operation, pagination.resultsPath) }}]:
+    def {{ operation.operationId|safe_snake_case }}_with_pagination(self, {% for name, parameter in operation.get_parameters() if parameter.required %}{{name|attribute_name}}: {{ get_type_for_parameter(parameter, typing=True) }}, {% endfor %}{% for name, parameter in operation.get_parameters() if not parameter.required %}{% if loop.first %}*, {% endif %}{{name|attribute_name}}: Union[{{ get_type_for_parameter(parameter, typing=True) }}, UnsetType]=unset, {% endfor %}) -> collections.abc.Iterable[{{ get_type_at_path(operation, pagination.resultsPath) }}]:
         """{{ operation.summary|indent(8) }}.
 
         Provide a paginated version of :meth:`{{ operation.operationId|safe_snake_case }}`, returning all items.
 {# keep new line #}
-{%- for name, parameter in operation.parameters if parameter.required %}
+{%- for name, parameter in operation.get_parameters() if parameter.required %}
 {%- if parameter.description %}
         :param {{ name|attribute_name }}: {{ parameter.description|docstring|indent(12) }}{% if parameter.default %} Defaults to {{ parameter.default }}.{% endif %}{% endif %}
         :type {{ name|attribute_name }}: {{ get_type_for_parameter(parameter) }}
 {%- endfor %}
-{%- for name, parameter in operation.parameters if not parameter.required %}
+{%- for name, parameter in operation.get_parameters() if not parameter.required %}
 {%- if parameter.description %}
         :param {{ name|attribute_name }}: {{ parameter.description|docstring|indent(12) }}{%- if parameter.default %} If omitted the server will use the default value of {{ parameter.default }}.{% endif %}{% endif %}
         :type {{ name|attribute_name }}: {{ get_type_for_parameter(parameter) }}, optional
@@ -194,7 +197,7 @@ class {{ classname }}:
         :rtype: collections.abc.Iterable[{{ get_type_at_path(operation, pagination.resultsPath) }}]
         """
         kwargs: Dict[str, Any] = {}
-{%- for name, parameter in operation.parameters %}
+{%- for name, parameter in operation.get_parameters() %}
 {%- if not parameter.required %}
         if {{ name|attribute_name }} is not unset:
             kwargs["{{ name|attribute_name }}"] = {{ name|attribute_name }}

@@ -12,10 +12,10 @@ class ExternalDocs(BaseModel):
 class ServerVariable(BaseModel):
     default: str
     description: Optional[str] = None
-    enum: Optional[List[str]] = None
+    enum: Optional[List[str]] = list()
 
 
 class Server(BaseModel):
     url: str
     description: Optional[str] = None
-    variables: Optional[Dict[str, ServerVariable]] = None
+    variables: Optional[Dict[str, ServerVariable]] = dict()

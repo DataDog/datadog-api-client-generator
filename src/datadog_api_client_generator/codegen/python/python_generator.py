@@ -15,6 +15,7 @@ class PythonGenerator(BaseCodegen):
         },
         additional_globals={
             "package": PACKAGE_NAME,
+            "get_type_for_parameter": utils.get_type_for_parameter,
         },
     )
 
@@ -48,17 +49,16 @@ class PythonGenerator(BaseCodegen):
             apis = spec.group_apis_by_tag()
             models = spec.schemas_by_name()
 
-            print(models.keys())
-            print(len(models.keys()))
+            package = top_package / version
+            package.mkdir(exist_ok=True)
 
-            # package = top_package / version
-            # package.mkdir(exist_ok=True)
+            tags_by_name = spec.tags_by_name()
 
-            # tags_by_name = spec.tags_by_name()
-
-            # for name, operations in apis.items():
-            #     filename = utils.safe_snake_case(name) + "_api.py"
-            #     api_path = package / "api" / filename
-            #     api_path.parent.mkdir(parents=True, exist_ok=True)
-            #     with api_path.open("w") as fp:
-            #         fp.write(api_j2.render(name=name, operations=operations, description=tags_by_name[name].description))
+            for name, operations in apis.items():
+                filename = utils.safe_snake_case(name) + "_api.py"
+                api_path = package / "api" / filename
+                api_path.parent.mkdir(parents=True, exist_ok=True)
+                with api_path.open("w") as fp:
+                    fp.write(
+                        api_j2.render(name=name, operations=operations, description=tags_by_name[name].description)
+                    )

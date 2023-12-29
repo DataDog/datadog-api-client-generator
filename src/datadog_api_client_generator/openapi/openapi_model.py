@@ -24,8 +24,8 @@ class OpenAPIInfo(BaseModel):
 
 
 class Components(BaseModel):
-    schemas: Optional[Dict[str, Schema]] = None
-    parameters: Optional[Dict[str, Parameter]] = None
+    schemas: Optional[Dict[str, Schema]] = dict()
+    parameters: Optional[Dict[str, Parameter]] = dict()
 
 
 class Tag(BaseModel):
@@ -38,10 +38,10 @@ class OpenAPI(BaseModel):
     info: OpenAPIInfo
     paths: Dict[str, PathsItemObject]
     components: Optional[Components] = None
-    servers: Optional[List[Server]] = None
-    tags: Optional[List[Tag]] = None
+    servers: Optional[List[Server]] = list()
+    tags: Optional[List[Tag]] = list()
     externalDocs: Optional[ExternalDocs] = None
-    security: Optional[List[Dict[str, List[str]]]] = None
+    security: Optional[List[Dict[str, List[str]]]] = list()
 
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}
@@ -52,7 +52,7 @@ class OpenAPI(BaseModel):
         for path in self.paths:
             for k, v in self.paths[path]:
                 if type(v) == OperationObject:
-                    tag = v.tags[0] or None
+                    tag = v.tags[0] if v.tags else None
                     operations.setdefault(tag, []).append((path, k, v))
 
         return operations

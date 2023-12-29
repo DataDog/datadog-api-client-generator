@@ -21,22 +21,22 @@ class RequestBody(BaseModel):
 
 
 class ResponseObject(BaseModel):
-    content: Optional[Dict[str, MediaObject]] = None
+    content: Optional[Dict[str, MediaObject]] = dict()
     description: Optional[str] = None
 
 
 class OperationObject(BaseModel):
-    tags: Optional[List[str]] = None
+    tags: Optional[List[str]] = list()
     summary: Optional[str] = None
     description: Optional[str] = None
     operationId: Optional[str] = None
-    parameters: Optional[List[Parameter]] = None
+    parameters: Optional[List[Parameter]] = list()
     deprecated: Optional[StrBool] = None
     externalDocs: Optional[ExternalDocs] = None
     requestBody: Optional[RequestBody] = None
-    responses: Optional[Dict[str, ResponseObject]] = None
-    servers: Optional[List[Server]] = None
-    security: Optional[List[Dict[str, List[str]]]] = None
+    responses: Optional[Dict[str, ResponseObject]] = dict()
+    servers: Optional[List[Server]] = list()
+    security: Optional[List[Dict[str, List[str]]]] = list()
 
     def get_parameters(self) -> Iterator[str, Parameter]:
         if self.parameters:
@@ -54,7 +54,7 @@ class OperationObject(BaseModel):
                             "schema": schema,
                             "name": name,
                             "description": schema.description,
-                            "required": name in parent.get("required", []),
+                            "required": name in parent.required,
                         }
                     )
             else:
@@ -62,7 +62,7 @@ class OperationObject(BaseModel):
                     if content.schema:
                         yield "body", Parameter(
                             **{
-                                "in": "",
+                                "in": "body",
                                 "schema": content.schema,
                                 "name": "body",
                                 "description": content.schema.description,
@@ -110,8 +110,8 @@ class OperationObject(BaseModel):
 class PathsItemObject(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
-    servers: Optional[List[Server]] = None
-    parameters: Optional[List[Parameter]] = None
+    servers: Optional[List[Server]] = list()
+    parameters: Optional[List[Parameter]] = list()
     get: Optional[OperationObject] = None
     put: Optional[OperationObject] = None
     post: Optional[OperationObject] = None

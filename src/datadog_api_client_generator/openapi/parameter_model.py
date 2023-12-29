@@ -8,7 +8,7 @@ from datadog_api_client_generator.openapi.utils import StrBool
 
 
 class Parameter(BaseModel):
-    in_: Literal["query", "header", "path", "cookie"] = Field(alias="in")
+    in_: Literal["query", "header", "path", "cookie", "body", "form"] = Field(alias="in")
     name: str
     description: Optional[str] = None
     required: Optional[StrBool] = None

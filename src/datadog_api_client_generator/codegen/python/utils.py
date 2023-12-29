@@ -5,6 +5,7 @@ import m2r2
 
 from datadog_api_client_generator.codegen.shared.templates_env import snake_case
 from datadog_api_client_generator.openapi.operation_model import OperationObject
+from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.schema_model import EnumSchema, OneOfSchema, Schema
 
 
@@ -133,7 +134,7 @@ def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = Fa
         subtype = type_to_python(schema.items, typing=typing)
         if typing:
             return "List[{}]".format(subtype)
-        if schema["items"].get("nullable"):
+        if schema.items.nullable:
             subtype += ", none_type"
         return "[{}]".format(subtype)
     elif type_ == "object":
@@ -176,13 +177,13 @@ def type_to_python(schema: Schema, typing: bool = False):
             return schema.name
         return type_
 
-    if type(schema) in EnumSchema:
+    if type(schema) == EnumSchema:
         return schema.name
 
     if schema.name and (schema.type == "object" or is_list_model_whitelisted(schema.name)):
         return schema.name
 
-    return basic_type_to_python(type_, schema, typing=typing)
+    return basic_type_to_python(schema.type, schema, typing=typing)
 
 
 def return_type(operation: OperationObject):
@@ -191,3 +192,12 @@ def return_type(operation: OperationObject):
             if content.schema:
                 return type_to_python(content.schema)
         return
+
+
+def get_type_for_parameter(parameter: Parameter, typing: bool =False):
+    """Return Python type name for the parameter."""
+    # if "content" in parameter:
+    #     assert "in" not in parameter
+    #     for content in parameter["content"].values():
+    #         return type_to_python(content["schema"], typing=typing)
+    return type_to_python(parameter.schema, typing=typing)
