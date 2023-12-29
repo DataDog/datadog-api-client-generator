@@ -64,7 +64,7 @@ class OperationObject(BaseModel):
                     if content.schema:
                         yield "body", Parameter(
                             **{
-                                "in": "body",
+                                "in": None,
                                 "schema": content.schema,
                                 "name": "body",
                                 "description": self.requestBody.description

@@ -8,7 +8,7 @@ from datadog_api_client_generator.openapi.utils import StrBool
 
 
 class Parameter(BaseModel):
-    in_: Literal["query", "header", "path", "cookie", "body", "form"] = Field(alias="in")
+    in_: Literal[None, "query", "header", "path", "cookie", "body", "form"] = Field(alias="in")
     name: str
     description: Optional[str] = None
     required: Optional[StrBool] = None
@@ -30,10 +30,10 @@ class Parameter(BaseModel):
             ("form", True): "multi",
             # TODO add more cases from https://swagger.io/specification/#parameter-style
         }
-        if self.schema.type == "array" or type(self.schema) == ArraySchema:
-            in_ = self.get("in_", "query")
-            style = self.get("style", in_to_style[in_])
-            explode = self.get("explode", True if style == "form" else False)
+        if type(self.schema) == ArraySchema:
+            in_ = self.in_ or "query"
+            style = self.style or in_to_style[in_]
+            explode = self.explode or True if style == "form" else False
             return matrix.get((style, explode), "multi")
 
     def schemas_by_name(self) -> Dict[str, Schema]:
