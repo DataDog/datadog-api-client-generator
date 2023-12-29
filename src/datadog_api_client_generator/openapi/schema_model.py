@@ -18,6 +18,7 @@ class BaseSchema(_Base):
     ] = None
     deprecated: Optional[StrBool] = None
     example: Optional[Any] = None
+    default: Optional[Any] = None
     nullable: Optional[StrBool] = None
     additionalProperties: Optional[Union[bool, Schema]] = None
     maxLength: Optional[int] = None

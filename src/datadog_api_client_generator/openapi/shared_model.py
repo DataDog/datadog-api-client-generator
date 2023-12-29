@@ -6,19 +6,18 @@ from pydantic import BaseModel, model_validator
 
 
 class _Base(BaseModel):
-    extensions: Optional[Dict[str, Any]] = None
+    extensions: Dict[str, Any] = dict()
 
     @model_validator(mode="before")
     def _remap_extensions(cls, v: Any) -> Dict:
-        if type(v) == JsonRef or type(v) == Dict:
+        if not isinstance(v, BaseModel) and callable(getattr(v, "keys")):
             # Remap extensions
             extensions = {}
             for k in list(v.keys()):
                 if k.startswith("x-"):
                     extensions[k] = v[k]
                     del v[k]
-            if extensions:
-                v["extensions"] = extensions
+            v["extensions"] = extensions
 
         return v
 

@@ -12,10 +12,13 @@ class PythonGenerator(BaseCodegen):
             "docstring": utils.docstring,
             "attribute_name": utils.attribute_name,
             "return_type": utils.return_type,
+            "attribute_path": utils.attribute_path,
         },
         additional_globals={
             "package": PACKAGE_NAME,
             "get_type_for_parameter": utils.get_type_for_parameter,
+            "get_type_at_path": utils.get_type_at_path,
+            "get_default": utils.get_default,
         },
     )
 

@@ -6,7 +6,7 @@ import m2r2
 from datadog_api_client_generator.codegen.shared.templates_env import snake_case
 from datadog_api_client_generator.openapi.operation_model import OperationObject
 from datadog_api_client_generator.openapi.parameter_model import Parameter
-from datadog_api_client_generator.openapi.schema_model import EnumSchema, OneOfSchema, Schema
+from datadog_api_client_generator.openapi.schema_model import ArraySchema, EnumSchema, OneOfSchema, Schema
 
 
 KEYWORDS = set(keyword.kwlist)
@@ -201,3 +201,46 @@ def get_type_for_parameter(parameter: Parameter, typing: bool = False):
     #     for content in parameter["content"].values():
     #         return type_to_python(content["schema"], typing=typing)
     return type_to_python(parameter.schema, typing=typing)
+
+
+def get_default(operation: OperationObject, attribute_path: str):
+    attrs = attribute_path.split(".")
+    for name, parameter in operation.get_parameters():
+        if name == attrs[0]:
+            break
+    if name == attribute_path:
+        # We found a top level attribute matching the full path, let's use the default
+        return parameter.schema.default
+
+    if name == "body":
+        parameter = next(iter(parameter.content.values())).schema
+    for attr in attrs[1:]:
+        parameter = parameter.properties[attr]
+    return parameter.default
+
+
+def attribute_path(attribute):
+    return ".".join(attribute_name(a) for a in attribute.split("."))
+
+
+def get_type_for_items(schema: ArraySchema):
+    return schema.items.name
+
+
+def get_type_at_path(operation: OperationObject, attribute_path: str):
+    content = None
+    for code, response in operation.responses.items():
+        if int(code) >= 300:
+            continue
+        for content in response.content.values():
+            if content.schema:
+                break
+    if content is None:
+        raise RuntimeError("Default response not found")
+    content = content.schema
+    if not attribute_path:
+        return get_type_for_items(content)
+    for attr in attribute_path.split("."):
+        content = content.properties[attr]
+
+    return get_type_for_items(content)

@@ -178,8 +178,8 @@ class {{ classname }}:
         warnings.warn("{{ operation.operationId|safe_snake_case }} is deprecated", DeprecationWarning, stacklevel=2)
 {%- endif %}
         return self._{{ operation.operationId|safe_snake_case }}_endpoint.call_with_http_info(**kwargs)
-    {%- if operation["x-pagination"] %}
-    {%- set pagination = operation["x-pagination"] %}
+    {%- if operation.extensions["x-pagination"] %}
+    {%- set pagination = operation.extensions["x-pagination"] %}
 
     def {{ operation.operationId|safe_snake_case }}_with_pagination(self, {% for name, parameter in operation.get_parameters() if parameter.required %}{{name|attribute_name}}: {{ get_type_for_parameter(parameter, typing=True) }}, {% endfor %}{% for name, parameter in operation.get_parameters() if not parameter.required %}{% if loop.first %}*, {% endif %}{{name|attribute_name}}: Union[{{ get_type_for_parameter(parameter, typing=True) }}, UnsetType]=unset, {% endfor %}) -> collections.abc.Iterable[{{ get_type_at_path(operation, pagination.resultsPath) }}]:
         """{{ operation.summary|indent(8) }}.
