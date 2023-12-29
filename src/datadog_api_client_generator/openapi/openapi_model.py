@@ -131,7 +131,7 @@ class OpenAPI(BaseModel):
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}
 
-    def apis(self):
+    def apis_by_tag(self):
         operations = {}
 
         for path in self.paths:
