@@ -28,6 +28,8 @@ class BaseSchema(_Base):
     pattern: Optional[str] = None
     maxItems: Optional[int] = None
     minItems: Optional[int] = None
+    exclusiveMinimum: Optional[bool] = None
+    exclusiveMaximum: Optional[bool] = None
 
     @model_validator(mode="before")
     def _enrich_schema(cls, v: Dict) -> Dict:
