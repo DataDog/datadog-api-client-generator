@@ -1,23 +1,23 @@
 from __future__ import annotations
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal
 
 from pydantic import Field
 
 from datadog_api_client_generator.openapi.schema_model import ArraySchema, Schema
 from datadog_api_client_generator.openapi.shared_model import _Base
-from datadog_api_client_generator.openapi.utils import StrBool
+from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
 class Parameter(_Base):
     in_: Literal[None, "query", "header", "path", "cookie", "body", "form"] = Field(alias="in")
     name: str
-    description: Optional[str] = None
-    required: Optional[StrBool] = None
-    deprecated: Optional[StrBool] = None
-    schema: Optional[Schema] = None
-    style: Optional[str] = None
-    explode: Optional[StrBool] = None
-    example: Optional[Any] = None
+    description: OptionalEmpty[str] = Empty()
+    required: OptionalEmpty[StrBool] = Empty()
+    deprecated: OptionalEmpty[StrBool] = Empty()
+    schema: OptionalEmpty[Schema] = Empty()
+    style: OptionalEmpty[str] = Empty()
+    explode: OptionalEmpty[StrBool] = Empty()
+    example: OptionalEmpty[Any] = Empty()
 
     def get_collection_format(self) -> str:
         in_to_style = {

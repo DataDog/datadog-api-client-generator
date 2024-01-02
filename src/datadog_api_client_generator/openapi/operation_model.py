@@ -1,40 +1,40 @@
 from __future__ import annotations
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional
 
 from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
-from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, StrBool
+from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 
 
 class MediaObject(_Base):
-    schema: Optional[Schema] = None
-    example: Optional[Any] = None
+    schema: OptionalEmpty[Schema] = Empty()
+    example: OptionalEmpty[Any] = Empty()
 
 
 class RequestBody(_Base):
     content: Dict[str, MediaObject]
-    description: Optional[str] = None
-    required: Optional[StrBool] = None
+    description: OptionalEmpty[str] = Empty()
+    required: OptionalEmpty[StrBool] = Empty()
 
 
 class ResponseObject(_Base):
-    content: Optional[Dict[str, MediaObject]] = dict()
-    description: Optional[str] = None
+    content: OptionalEmpty[Dict[str, MediaObject]] = dict()
+    description: OptionalEmpty[str] = None
 
 
 class OperationObject(_Base):
-    tags: Optional[List[str]] = list()
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    operationId: Optional[str] = None
-    parameters: Optional[List[Parameter]] = list()
-    deprecated: Optional[StrBool] = None
-    externalDocs: Optional[ExternalDocs] = None
-    requestBody: Optional[RequestBody] = None
-    responses: Optional[Dict[str, ResponseObject]] = dict()
-    servers: Optional[List[Server]] = list()
-    security: Optional[List[Dict[str, List[str]]]] = None
+    tags: OptionalEmpty[List[str]] = list()
+    summary: OptionalEmpty[str] = Empty()
+    description: OptionalEmpty[str] = Empty()
+    operationId: OptionalEmpty[str] = Empty()
+    parameters: OptionalEmpty[List[Parameter]] = list()
+    deprecated: OptionalEmpty[StrBool] = Empty()
+    externalDocs: OptionalEmpty[ExternalDocs] = Empty()
+    requestBody: OptionalEmpty[RequestBody] = Empty()
+    responses: OptionalEmpty[Dict[str, ResponseObject]] = dict()
+    servers: OptionalEmpty[List[Server]] = list()
+    security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 
     def get_parameters(self) -> Iterator[str, Parameter]:
         if self.parameters:
@@ -110,18 +110,18 @@ class OperationObject(_Base):
 
 
 class PathsItemObject(_Base):
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    servers: Optional[List[Server]] = list()
-    parameters: Optional[List[Parameter]] = list()
-    get: Optional[OperationObject] = None
-    put: Optional[OperationObject] = None
-    post: Optional[OperationObject] = None
-    delete: Optional[OperationObject] = None
-    options: Optional[OperationObject] = None
-    head: Optional[OperationObject] = None
-    patch: Optional[OperationObject] = None
-    trace: Optional[OperationObject] = None
+    summary: OptionalEmpty[str] = Empty()
+    description: OptionalEmpty[str] = Empty()
+    servers: OptionalEmpty[List[Server]] = list()
+    parameters: OptionalEmpty[List[Parameter]] = list()
+    get: OptionalEmpty[OperationObject] = Empty()
+    put: OptionalEmpty[OperationObject] = Empty()
+    post: OptionalEmpty[OperationObject] = Empty()
+    delete: OptionalEmpty[OperationObject] = Empty()
+    options: OptionalEmpty[OperationObject] = Empty()
+    head: OptionalEmpty[OperationObject] = Empty()
+    patch: OptionalEmpty[OperationObject] = Empty()
+    trace: OptionalEmpty[OperationObject] = Empty()
 
     def schemas_by_name(self) -> Dict[str, Schema]:
         schemas_by_name = {}

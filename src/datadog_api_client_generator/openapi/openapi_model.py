@@ -1,44 +1,45 @@
 from __future__ import annotations
-from typing import Dict, List, Optional
+from typing import Dict, List, Union
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 from datadog_api_client_generator.openapi.schema_model import Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
+from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
 
 
 class OpenAPIContact(_Base):
-    name: Optional[str] = None
-    url: Optional[str] = None
-    email: Optional[str] = None
+    name: OptionalEmpty[str] = Empty()
+    url: OptionalEmpty[str] = Empty()
+    email: OptionalEmpty[str] = Empty()
 
 
 class OpenAPIInfo(_Base):
-    title: Optional[str] = None
-    version: Optional[str] = None
-    description: Optional[str] = None
-    contact: Optional[OpenAPIContact] = None
+    title: OptionalEmpty[str] = Empty()
+    version: OptionalEmpty[str] = Empty()
+    description: OptionalEmpty[str] = Empty()
+    contact: OptionalEmpty[OpenAPIContact] = Empty()
 
 
 class Components(_Base):
-    schemas: Optional[Dict[str, Schema]] = dict()
-    parameters: Optional[Dict[str, Parameter]] = dict()
+    schemas: OptionalEmpty[Dict[str, Schema]] = dict()
+    parameters: OptionalEmpty[Dict[str, Parameter]] = dict()
 
 
 class Tag(_Base):
     name: str
-    description: Optional[str] = None
+    description: OptionalEmpty[str] = Empty()
 
 
 class OpenAPI(_Base):
     openapi: str
     info: OpenAPIInfo
     paths: Dict[str, PathsItemObject]
-    components: Optional[Components] = None
-    servers: Optional[List[Server]] = list()
-    tags: Optional[List[Tag]] = list()
-    externalDocs: Optional[ExternalDocs] = None
-    security: Optional[List[Dict[str, List[str]]]] = None
+    components: OptionalEmpty[Components] = Empty()
+    servers: OptionalEmpty[List[Server]] = list()
+    tags: OptionalEmpty[List[Tag]] = list()
+    externalDocs: OptionalEmpty[ExternalDocs] = Empty()
+    security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}

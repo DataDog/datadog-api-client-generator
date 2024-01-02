@@ -1,35 +1,35 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
+from typing import Any, Dict, List, Literal, Union, TypeAlias
 
 from jsonref import JsonRef
 from pydantic import model_validator
 
 from datadog_api_client_generator.openapi.shared_model import _Base
-from datadog_api_client_generator.openapi.utils import get_name_from_json_ref, StrBool
+from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_from_json_ref, StrBool
 
 
 class BaseSchema(_Base):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    required: Optional[List[str]] = None
-    type: Optional[Literal["string", "number", "integer", "boolean", "array", "object"]] = None
-    format: Optional[
+    name: OptionalEmpty[str] = Empty()
+    description: OptionalEmpty[str] = Empty()
+    required: OptionalEmpty[List[str]] = Empty()
+    type: OptionalEmpty[Literal["string", "number", "integer", "boolean", "array", "object"]] = Empty()
+    format: OptionalEmpty[
         Literal["int32", "int64", "float", "double", "byte", "binary", "date", "date-time", "password", "email", "uuid"]
-    ] = None
-    deprecated: Optional[StrBool] = None
-    example: Optional[Any] = None
-    default: Optional[Any] = None
-    nullable: Optional[StrBool] = None
-    additionalProperties: Optional[Union[bool, Schema]] = None
-    maxLength: Optional[int] = None
-    minLength: Optional[int] = None
-    maximum: Optional[int] = None
-    minimum: Optional[int] = None
-    pattern: Optional[str] = None
-    maxItems: Optional[int] = None
-    minItems: Optional[int] = None
-    exclusiveMinimum: Optional[bool] = None
-    exclusiveMaximum: Optional[bool] = None
+    ] = Empty()
+    deprecated: OptionalEmpty[StrBool] = Empty()
+    example: OptionalEmpty[Any] = Empty()
+    default: OptionalEmpty[Any] = Empty()
+    nullable: OptionalEmpty[StrBool] = Empty()
+    additionalProperties: OptionalEmpty[Union[bool, Schema]] = Empty()
+    maxLength: OptionalEmpty[int] = Empty()
+    minLength: OptionalEmpty[int] = Empty()
+    maximum: OptionalEmpty[int] = Empty()
+    minimum: OptionalEmpty[int] = Empty()
+    pattern: OptionalEmpty[str] = Empty()
+    maxItems: OptionalEmpty[int] = Empty()
+    minItems: OptionalEmpty[int] = Empty()
+    exclusiveMinimum: OptionalEmpty[StrBool] = Empty()
+    exclusiveMaximum: OptionalEmpty[StrBool] = Empty()
 
     @model_validator(mode="before")
     def _enrich_schema(cls, v: Dict) -> Dict:

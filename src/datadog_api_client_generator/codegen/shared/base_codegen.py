@@ -30,4 +30,4 @@ class BaseCodegen(ABC):
 
     @abstractmethod
     def generate(self):
-        pass
+        ...
