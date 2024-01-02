@@ -94,6 +94,10 @@ class OperationObject(_Base):
     def schemas_by_name(self) -> Dict[str, Schema]:
         schemas_by_name = {}
 
+        for _, parameter in self.get_parameters():
+            if parameter.schema:
+                schemas_by_name.update(parameter.schema.schemas_by_name())
+
         if self.requestBody:
             for content in self.requestBody.content.values():
                 if content.schema:

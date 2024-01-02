@@ -155,8 +155,8 @@ def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = Fa
 
 
 def get_oneof_types(model: OneOfSchema, typing=False):
-    for schema in model["oneOf"]:
-        type_ = schema.get("type", "object")
+    for schema in model.oneOf:
+        type_ = schema.type or "object"
         if type_ == "object" or is_list_model_whitelisted(schema.name):
             yield schema.name
         else:
@@ -213,7 +213,7 @@ def get_default(operation: OperationObject, attribute_path: str):
         return parameter.schema.default
 
     if name == "body":
-        parameter = next(iter(parameter.content.values())).schema
+        parameter = parameter.schema
     for attr in attrs[1:]:
         parameter = parameter.properties[attr]
     return parameter.default
