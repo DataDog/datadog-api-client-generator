@@ -18,10 +18,8 @@ class GeneratorConfig:
 class BaseCodegen(ABC):
     generator_config: GeneratorConfig
 
-    def __init__(self, specs: Dict[str, OpenAPI], output: PosixPath) -> None:
-        self.specs: Dict[str, OpenAPI] = specs
-        self.output: PosixPath = output
-        self.env: Environment = build_default_jinja2_env(specs)
+    def __init__(self) -> None:
+        self.env: Environment = build_default_jinja2_env()
 
         if self.generator_config.additional_filters:
             self.env.filters.update(self.generator_config.additional_filters)
@@ -29,5 +27,5 @@ class BaseCodegen(ABC):
             self.env.globals.update(self.generator_config.additional_globals)
 
     @abstractmethod
-    def generate(self):
+    def generate(self, version: str, spec: OpenAPI, output: PosixPath):
         ...

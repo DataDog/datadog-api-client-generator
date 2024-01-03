@@ -22,20 +22,15 @@ from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 )
 @click.option("-g", "--generator", type=click.Choice(list(GENERATORS.keys())), required=True)
 def cli(*args, **kwargs):
-    specs = {}
+    generator_cls = GENERATORS[kwargs.get("generator")]
+    generator = generator_cls()
+
+    output = kwargs.get("output")
     for s in kwargs.get("specs"):
         version = s.parent.name
         spec = load_deref_yaml(s)
         spec = OpenAPI.model_validate(spec)
 
-        specs[version] = spec
-
-    output = kwargs.get("output")
-    generator_cls = GENERATORS[kwargs.get("generator")]
-
-    print("--------------------------------------------------------")
-
-    generator = generator_cls(specs=specs, output=output)
-    generator.generate()
-
-    print("--------------------------------------------------------")
+        print("--------------------------------------------------------")
+        generator.generate(version=version, spec=spec, output=output)
+        print("--------------------------------------------------------")

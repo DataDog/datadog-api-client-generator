@@ -1,5 +1,7 @@
+from pathlib import PosixPath
 from datadog_api_client_generator.codegen.python import utils
 from datadog_api_client_generator.codegen.shared.base_codegen import BaseCodegen, GeneratorConfig
+from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
 PACKAGE_NAME = "datadog_api_client"
@@ -22,7 +24,9 @@ class PythonGenerator(BaseCodegen):
         },
     )
 
-    def generate(self) -> None:
+    def generate(self, version: str, spec: OpenAPI, output: PosixPath) -> None:
+        self.env.globals["openapi"] = spec
+
         api_j2 = self.env.get_template("api.j2")
         # apis_j2 = self.env.get_template("apis.j2")
         # model_j2 = self.env.get_template("model.j2")
@@ -42,26 +46,23 @@ class PythonGenerator(BaseCodegen):
         #     with filename.open("w") as fp:
         #         fp.write(template.render())
 
-        top_package = self.output / PACKAGE_NAME
+        top_package = output / PACKAGE_NAME
         top_package.mkdir(parents=True, exist_ok=True)
 
-        for version, spec in self.specs.items():
-            self.env.globals["version"] = version
-            utils.set_api_version(version)
+        self.env.globals["version"] = version
+        utils.set_api_version(version)
 
-            apis = spec.group_apis_by_tag()
-            models = spec.schemas_by_name()
+        apis = spec.group_apis_by_tag()
+        models = spec.schemas_by_name()
 
-            package = top_package / version
-            package.mkdir(exist_ok=True)
+        package = top_package / version
+        package.mkdir(exist_ok=True)
 
-            tags_by_name = spec.tags_by_name()
+        tags_by_name = spec.tags_by_name()
 
-            for name, operations in apis.items():
-                filename = utils.safe_snake_case(name) + "_api.py"
-                api_path = package / "api" / filename
-                api_path.parent.mkdir(parents=True, exist_ok=True)
-                with api_path.open("w") as fp:
-                    fp.write(
-                        api_j2.render(name=name, operations=operations, description=tags_by_name[name].description)
-                    )
+        for name, operations in apis.items():
+            filename = utils.safe_snake_case(name) + "_api.py"
+            api_path = package / "api" / filename
+            api_path.parent.mkdir(parents=True, exist_ok=True)
+            with api_path.open("w") as fp:
+                fp.write(api_j2.render(name=name, operations=operations, description=tags_by_name[name].description))

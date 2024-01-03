@@ -45,7 +45,7 @@ class {{ classname }}:
         self._{{ operation.operationId|safe_snake_case }}_endpoint = _Endpoint(
             settings={
                 "response_type": {% if returnType %}({{ returnType }},){% else %}None{% endif %},
-    {%- set authMethods = operation.security if operation.security is defined else openapi[version].security %}
+    {%- set authMethods = operation.security if operation.security is defined else openapi.security %}
                 "auth": [
 {%- for auth in (authMethods or []) %}"{{ '", "'.join(auth.keys()) }}"{%- if not loop.last %}, {% endif %}{%- endfor %}],
                 "endpoint_path": "{{ path }}",
