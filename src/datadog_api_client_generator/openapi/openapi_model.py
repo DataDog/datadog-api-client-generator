@@ -1,5 +1,8 @@
 from __future__ import annotations
+from contextvars import ContextVar
 from typing import Dict, List, Union
+
+from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
@@ -40,6 +43,18 @@ class OpenAPI(_Base):
     tags: OptionalEmpty[List[Tag]] = list()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
+
+    @model_validator(mode="before")
+    def _inject_ctx(cls, v: Dict, info: ValidationInfo) -> Dict:
+        if info.context is None:
+            raise AttributeError("context cannot be None when initializing")
+        info.context["openapi"] = ContextVar(str(id(v)))
+        return v
+
+    @model_validator(mode="after")
+    def _inject_ctx_after(self, info: ValidationInfo) -> Dict:
+        info.context["openapi"].set(self)
+        return self
 
     def tags_by_name(self) -> Dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}

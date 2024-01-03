@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 import pathlib
 
 import click
@@ -28,8 +29,9 @@ def cli(*args, **kwargs):
     output = kwargs.get("output")
     for s in kwargs.get("specs"):
         version = s.parent.name
+
         spec = load_yaml(s)
-        spec = OpenAPI.model_validate(spec)
+        spec = OpenAPI.model_validate(spec, context={})
 
         print("--------------------------------------------------------")
         generator.generate(version=version, spec=spec, output=output)

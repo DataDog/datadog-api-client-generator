@@ -1,4 +1,5 @@
 from __future__ import annotations
+from contextvars import ContextVar
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, model_validator
@@ -6,6 +7,7 @@ from pydantic import BaseModel, model_validator
 
 class _Base(BaseModel):
     extensions: Dict[str, Any] = dict()
+    _root_openapi: Optional[ContextVar] = None
 
     @model_validator(mode="before")
     def _remap_extensions(cls, v: Any) -> Dict:
@@ -19,6 +21,13 @@ class _Base(BaseModel):
             v["extensions"] = extensions
 
         return v
+
+    @model_validator(mode="after")
+    def _inject_ctx_after(self, v: Any) -> Dict:
+        if v.context:
+            self._root_openapi = v.context.get("openapi")
+
+        return self
 
 
 class ExternalDocs(_Base):

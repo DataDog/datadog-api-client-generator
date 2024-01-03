@@ -135,6 +135,11 @@ class ObjectSchema(BaseSchema):
 class RefObject(_Base):
     ref: str = Field(alias="$ref")
 
+    def schemas_by_name(self) -> Dict[str, Schema]:
+        schemas_by_name = {}
+
+        return schemas_by_name
+
 
 Schema: TypeAlias = Union[
     RefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema
