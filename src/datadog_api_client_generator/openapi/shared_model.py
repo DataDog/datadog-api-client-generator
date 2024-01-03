@@ -11,7 +11,7 @@ class _Base(BaseModel):
     def _remap_extensions(cls, v: Any) -> Dict:
         if not isinstance(v, BaseModel) and callable(getattr(v, "keys")):
             # Remap extensions
-            extensions = {}
+            extensions = v.get("extensions", {})
             for k in list(v.keys()):
                 if k.startswith("x-"):
                     extensions[k] = v[k]

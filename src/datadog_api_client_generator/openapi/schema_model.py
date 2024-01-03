@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Union, TypeAlias
+from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
 from jsonref import JsonRef
 from pydantic import model_validator
@@ -11,7 +11,7 @@ from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get
 class BaseSchema(_Base):
     name: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
-    required: OptionalEmpty[List[str]] = Empty()
+    required: Optional[List[str]] = list()
     type: OptionalEmpty[Literal["string", "number", "integer", "boolean", "array", "object"]] = Empty()
     format: OptionalEmpty[
         Literal["int32", "int64", "float", "double", "byte", "binary", "date", "date-time", "password", "email", "uuid"]
