@@ -36,12 +36,12 @@ T = TypeVar("T")
 OptionalEmpty = Union[T, type(None), Empty]
 
 
-def load_deref_yaml(path: PosixPath) -> Dict:
+def load_yaml(path: PosixPath) -> Dict:
     """
-    Return openapi specification from yaml file and dereference $refs.
+    Return openapi specification from yaml file.
     """
     with path.open() as fp:
-        return JsonRef.replace_refs(yaml.load(fp, Loader=yaml.CSafeLoader))
+        return yaml.load(fp, Loader=yaml.CSafeLoader)
 
 
 def get_name_from_json_ref(schema: Any) -> Optional[str]:

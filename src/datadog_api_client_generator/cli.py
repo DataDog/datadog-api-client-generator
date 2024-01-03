@@ -3,7 +3,7 @@ import pathlib
 import click
 
 from datadog_api_client_generator.codegen import GENERATORS
-from datadog_api_client_generator.openapi.utils import load_deref_yaml
+from datadog_api_client_generator.openapi.utils import load_yaml
 from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
@@ -28,7 +28,7 @@ def cli(*args, **kwargs):
     output = kwargs.get("output")
     for s in kwargs.get("specs"):
         version = s.parent.name
-        spec = load_deref_yaml(s)
+        spec = load_yaml(s)
         spec = OpenAPI.model_validate(spec)
 
         print("--------------------------------------------------------")

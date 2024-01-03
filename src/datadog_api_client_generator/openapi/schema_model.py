@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
 from jsonref import JsonRef
-from pydantic import model_validator
+from pydantic import Field, model_validator
 
 from datadog_api_client_generator.openapi.shared_model import _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_from_json_ref, StrBool
@@ -132,4 +132,10 @@ class ObjectSchema(BaseSchema):
         return schemas_by_name
 
 
-Schema: TypeAlias = Union[ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema]
+class RefObject(_Base):
+    ref: str = Field(alias="$ref")
+
+
+Schema: TypeAlias = Union[
+    RefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema
+]

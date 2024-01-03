@@ -1,7 +1,7 @@
 from __future__ import annotations
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Union
 
-from datadog_api_client_generator.openapi.schema_model import Schema
+from datadog_api_client_generator.openapi.schema_model import RefObject, Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
@@ -28,7 +28,7 @@ class OperationObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     operationId: OptionalEmpty[str] = Empty()
-    parameters: OptionalEmpty[List[Parameter]] = list()
+    parameters: OptionalEmpty[List[Union[RefObject, Parameter]]] = list()
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
@@ -117,7 +117,7 @@ class PathsItemObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     servers: OptionalEmpty[List[Server]] = list()
-    parameters: OptionalEmpty[List[Parameter]] = list()
+    parameters: OptionalEmpty[List[Union[RefObject, Parameter]]] = list()
     get: OptionalEmpty[OperationObject] = Empty()
     put: OptionalEmpty[OperationObject] = Empty()
     post: OptionalEmpty[OperationObject] = Empty()

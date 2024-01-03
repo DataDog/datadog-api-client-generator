@@ -3,7 +3,7 @@ from typing import Dict, List, Union
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import Schema
+from datadog_api_client_generator.openapi.schema_model import RefObject, Schema
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
 
@@ -23,7 +23,7 @@ class OpenAPIInfo(_Base):
 
 class Components(_Base):
     schemas: OptionalEmpty[Dict[str, Schema]] = dict()
-    parameters: OptionalEmpty[Dict[str, Parameter]] = dict()
+    parameters: OptionalEmpty[Dict[str, Union[RefObject, Parameter]]] = dict()
 
 
 class Tag(_Base):
