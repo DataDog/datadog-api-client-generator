@@ -98,26 +98,24 @@ class OperationObject(_Base):
                     return content.schema
             return None
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
-
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         for _, parameter in self.get_parameters():
             if parameter:
-                schemas_by_name.update(parameter.schemas_by_name())
+                mapping.update(parameter.schemas_by_name(mapping=mapping))
 
         if self.requestBody:
             for content in self.requestBody.content.values():
                 if content.schema:
-                    schemas_by_name.update(content.schema.schemas_by_name())
+                    mapping.update(content.schema.schemas_by_name(mapping=mapping))
 
         if self.responses:
             for response in self.responses.values():
                 if response.content:
                     for content in response.content.values():
                         if content.schema:
-                            schemas_by_name.update(content.schema.schemas_by_name())
+                            mapping.update(content.schema.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class PathsItemObject(_Base):
@@ -134,24 +132,22 @@ class PathsItemObject(_Base):
     patch: OptionalEmpty[OperationObject] = Empty()
     trace: OptionalEmpty[OperationObject] = Empty()
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
-
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.get:
-            schemas_by_name.update(self.get.schemas_by_name())
+            mapping.update(self.get.schemas_by_name(mapping=mapping))
         if self.put:
-            schemas_by_name.update(self.put.schemas_by_name())
+            mapping.update(self.put.schemas_by_name(mapping=mapping))
         if self.post:
-            schemas_by_name.update(self.post.schemas_by_name())
+            mapping.update(self.post.schemas_by_name(mapping=mapping))
         if self.delete:
-            schemas_by_name.update(self.delete.schemas_by_name())
+            mapping.update(self.delete.schemas_by_name(mapping=mapping))
         if self.options:
-            schemas_by_name.update(self.options.schemas_by_name())
+            mapping.update(self.options.schemas_by_name(mapping=mapping))
         if self.head:
-            schemas_by_name.update(self.head.schemas_by_name())
+            mapping.update(self.head.schemas_by_name(mapping=mapping))
         if self.patch:
-            schemas_by_name.update(self.patch.schemas_by_name())
+            mapping.update(self.patch.schemas_by_name(mapping=mapping))
         if self.trace:
-            schemas_by_name.update(self.trace.schemas_by_name())
+            mapping.update(self.trace.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping

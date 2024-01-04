@@ -38,19 +38,25 @@ class Parameter(_Base):
 
             return matrix.get((style, explode), "multi")
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.schema:
-            schemas_by_name.update(self.schema.schemas_by_name())
+            mapping.update(self.schema.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class ParameterRefObject(_RefObject):
     _ref_path: Literal["parameters"]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        return self.resolve_ref().schemas_by_name()
+    def get_collection_format(self) -> str:
+        return self.resolve_ref().get_collection_format()
+
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+        param = self.resolve_ref()
+        if param.schema and param.schema.name not in mapping:
+            mapping.update(param.schema.schemas_by_name(mapping=mapping))
+
+        return mapping
 
     def resolve_ref(self) -> Parameter:
         return self._root_openapi.get().components.parameters.get(self.name)

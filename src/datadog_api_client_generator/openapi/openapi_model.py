@@ -77,9 +77,8 @@ class OpenAPI(_Base):
 
         return operations
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         for path in self.paths.values():
-            schemas_by_name.update(path.schemas_by_name())
+            mapping.update(path.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping

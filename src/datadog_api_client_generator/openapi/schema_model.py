@@ -28,102 +28,102 @@ class Schema(_Base):
     exclusiveMinimum: OptionalEmpty[StrBool] = Empty()
     exclusiveMaximum: OptionalEmpty[StrBool] = Empty()
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
         if type(self.additionalProperties) == SchemaType:
-            schemas_by_name.update(self.additionalProperties.schemas_by_name())
+            mapping.update(self.additionalProperties.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class OneOfSchema(Schema):
     oneOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
         for oneOf in self.oneOf:
-            schemas_by_name.update(oneOf.schemas_by_name())
+            mapping.update(oneOf.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class EnumSchema(Schema):
     enum: List[Union[str, int, float]]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
-        return schemas_by_name
+        return mapping
 
 
 class AllOfSchema(Schema):
     allOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
         for allOf in self.allOf:
-            schemas_by_name.update(allOf.schemas_by_name())
+            mapping.update(allOf.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class AnyOfSchema(Schema):
     anyOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
         for anyOf in self.anyOf:
-            schemas_by_name.update(anyOf.schemas_by_name())
+            mapping.update(anyOf.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class ArraySchema(Schema):
     items: SchemaType
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
-        schemas_by_name.update(self.items.schemas_by_name())
+        mapping.update(self.items.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class ObjectSchema(Schema):
     properties: Dict[str, SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        schemas_by_name = {}
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name:
-            schemas_by_name[self.name] = self
+            mapping[self.name] = self
 
         for k, p in self.properties.items():
-            schemas_by_name.update(p.schemas_by_name())
+            mapping.update(p.schemas_by_name(mapping=mapping))
 
-        return schemas_by_name
+        return mapping
 
 
 class SchemasRefObject(_RefObject):
     _ref_path: Literal["schemas"]
 
-    def schemas_by_name(self) -> Dict[str, SchemaType]:
-        return self.resolve_ref().schemas_by_name()
+    @property
+    def properties(self):
+        self.resolve_ref().properties
+
+    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+        if self.name not in mapping:
+            mapping.update(self.resolve_ref().schemas_by_name(mapping=mapping))
+
+        return mapping
 
     def resolve_ref(self) -> SchemaType:
         return self._root_openapi.get().components.schemas.get(self.name)
