@@ -6,8 +6,8 @@ from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import RefObject, Schema
-from datadog_api_client_generator.openapi.parameter_model import Parameter
+from datadog_api_client_generator.openapi.schema_model import SchemaType
+from datadog_api_client_generator.openapi.parameter_model import ParameterType
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
 
 
@@ -25,8 +25,8 @@ class OpenAPIInfo(_Base):
 
 
 class Components(_Base):
-    schemas: OptionalEmpty[Dict[str, Schema]] = dict()
-    parameters: OptionalEmpty[Dict[str, Union[RefObject, Parameter]]] = dict()
+    schemas: OptionalEmpty[Dict[str, SchemaType]] = dict()
+    parameters: OptionalEmpty[Dict[str, ParameterType]] = dict()
 
     @model_validator(mode="before")
     def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
@@ -77,7 +77,7 @@ class OpenAPI(_Base):
 
         return operations
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         for path in self.paths.values():
             schemas_by_name.update(path.schemas_by_name())

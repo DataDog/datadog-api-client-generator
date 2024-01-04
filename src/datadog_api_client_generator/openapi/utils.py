@@ -1,7 +1,7 @@
 from jinja2 import Undefined
 import yaml
 from pathlib import PosixPath
-from typing import Annotated, Any, Dict, Optional, Self, TypeVar, Union
+from typing import Annotated, Any, Dict, Optional, Self, Tuple, TypeVar, Union
 
 from pydantic import GetCoreSchemaHandler, PlainValidator
 from pydantic_core import core_schema
@@ -44,9 +44,8 @@ def load_yaml(path: PosixPath) -> Dict:
         return yaml.load(fp, Loader=yaml.CSafeLoader)
 
 
-def get_name_from_json_ref(schema: Any) -> Optional[str]:
+def get_name_and_path_from_ref(ref: str) -> Tuple[str, str]:
     """
-    Return name if model is a ref.
+    Return name and path from $ref value.
     """
-    if hasattr(schema, "__reference__"):
-        return schema.__reference__["$ref"].split("/")[-1]
+    return ref.split("/")[-2:]

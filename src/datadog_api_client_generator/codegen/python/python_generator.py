@@ -1,4 +1,6 @@
+from __future__ import annotations
 from pathlib import PosixPath
+
 from datadog_api_client_generator.codegen.python import utils
 from datadog_api_client_generator.codegen.shared.base_codegen import BaseCodegen, GeneratorConfig
 from datadog_api_client_generator.openapi.openapi_model import OpenAPI

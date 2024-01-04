@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from datadog_api_client_generator.openapi.schema_model import RefObject, Schema
-from datadog_api_client_generator.openapi.parameter_model import Parameter
+from datadog_api_client_generator.openapi.schema_model import SchemaType, SchemasRefObject
+from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterRefObject, ParameterType
 from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 
 
 class MediaObject(_Base):
-    schema: OptionalEmpty[Schema] = Empty()
+    schema: OptionalEmpty[SchemaType] = Empty()
     example: OptionalEmpty[Any] = Empty()
 
 
@@ -28,7 +28,7 @@ class OperationObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     operationId: OptionalEmpty[str] = Empty()
-    parameters: OptionalEmpty[List[Union[RefObject, Parameter]]] = list()
+    parameters: OptionalEmpty[List[ParameterType]] = list()
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
@@ -36,7 +36,7 @@ class OperationObject(_Base):
     servers: OptionalEmpty[List[Server]] = list()
     security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 
-    def get_parameters(self) -> Iterator[str, Parameter]:
+    def get_parameters(self) -> Iterator[str, ParameterType]:
         if self.parameters:
             for parameter in self.parameters:
                 if parameter.schema:
@@ -45,6 +45,9 @@ class OperationObject(_Base):
         if self.requestBody:
             if "multipart/form-data" in self.requestBody.content:
                 parent = self.requestBody.content["multipart/form-data"].schema
+                if isinstance(parent, SchemasRefObject):
+                    parent = parent.resolve_ref()
+
                 for name, schema in parent.properties.items():
                     yield name, Parameter(
                         **{
@@ -59,15 +62,19 @@ class OperationObject(_Base):
                     )
             else:
                 for content in self.requestBody.content.values():
-                    if content.schema:
+                    schema = content.schema
+                    if isinstance(schema, SchemasRefObject):
+                        schema = schema.resolve_ref()
+
+                    if schema:
                         yield "body", Parameter(
                             **{
                                 "in": None,
-                                "schema": content.schema,
+                                "schema": schema,
                                 "name": "body",
                                 "description": self.requestBody.description
                                 if self.requestBody.description
-                                else content.schema.description,
+                                else schema.description,
                                 "required": self.requestBody.required,
                             }
                         )
@@ -84,19 +91,19 @@ class OperationObject(_Base):
                 return [HEADER_ANY_TYPE]
         return seen
 
-    def get_return_schema(self) -> Optional[Schema]:
+    def get_return_schema(self) -> Optional[SchemaType]:
         for response in self.responses.values():
             for content in response.content.values():
                 if content.schema:
                     return content.schema
             return None
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
 
         for _, parameter in self.get_parameters():
-            if parameter.schema:
-                schemas_by_name.update(parameter.schema.schemas_by_name())
+            if parameter:
+                schemas_by_name.update(parameter.schemas_by_name())
 
         if self.requestBody:
             for content in self.requestBody.content.values():
@@ -117,7 +124,7 @@ class PathsItemObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     servers: OptionalEmpty[List[Server]] = list()
-    parameters: OptionalEmpty[List[Union[RefObject, Parameter]]] = list()
+    parameters: OptionalEmpty[List[ParameterType]] = list()
     get: OptionalEmpty[OperationObject] = Empty()
     put: OptionalEmpty[OperationObject] = Empty()
     post: OptionalEmpty[OperationObject] = Empty()
@@ -127,7 +134,7 @@ class PathsItemObject(_Base):
     patch: OptionalEmpty[OperationObject] = Empty()
     trace: OptionalEmpty[OperationObject] = Empty()
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
 
         if self.get:

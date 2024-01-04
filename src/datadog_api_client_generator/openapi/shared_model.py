@@ -1,13 +1,19 @@
 from __future__ import annotations
 from contextvars import ContextVar
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
+
+from datadog_api_client_generator.openapi.utils import get_name_and_path_from_ref
+
+
+if TYPE_CHECKING:
+    from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
 class _Base(BaseModel):
     extensions: Dict[str, Any] = dict()
-    _root_openapi: Optional[ContextVar] = None
+    _root_openapi: Optional[ContextVar[OpenAPI]] = None
 
     @model_validator(mode="before")
     def _remap_extensions(cls, v: Any) -> Dict:
@@ -28,6 +34,19 @@ class _Base(BaseModel):
             self._root_openapi = v.context.get("openapi")
 
         return self
+
+
+class _RefObject(_Base):
+    ref: str = Field(alias="$ref")
+    name: str
+
+    @model_validator(mode="before")
+    def _inject_ref_properties(cls, v: Any) -> Dict:
+        if "$ref" in v:
+            path, name = get_name_and_path_from_ref(v["$ref"])
+            v["_ref_path"] = path
+            v["name"] = name
+        return v
 
 
 class ExternalDocs(_Base):

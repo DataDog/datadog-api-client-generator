@@ -1,14 +1,11 @@
 from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
-from jsonref import JsonRef
-from pydantic import Field, model_validator
-
-from datadog_api_client_generator.openapi.shared_model import _Base
-from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_from_json_ref, StrBool
+from datadog_api_client_generator.openapi.shared_model import _Base, _RefObject
+from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
-class BaseSchema(_Base):
+class Schema(_Base):
     name: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     required: Optional[List[str]] = list()
@@ -20,7 +17,7 @@ class BaseSchema(_Base):
     example: OptionalEmpty[Any] = Empty()
     default: OptionalEmpty[Any] = Empty()
     nullable: OptionalEmpty[StrBool] = Empty()
-    additionalProperties: OptionalEmpty[Union[bool, Schema]] = Empty()
+    additionalProperties: OptionalEmpty[Union[bool, SchemaType]] = Empty()
     maxLength: OptionalEmpty[int] = Empty()
     minLength: OptionalEmpty[int] = Empty()
     maximum: OptionalEmpty[int] = Empty()
@@ -31,31 +28,21 @@ class BaseSchema(_Base):
     exclusiveMinimum: OptionalEmpty[StrBool] = Empty()
     exclusiveMaximum: OptionalEmpty[StrBool] = Empty()
 
-    @model_validator(mode="before")
-    def _enrich_schema(cls, v: Dict) -> Dict:
-        if type(v) == JsonRef:
-            # inject name from $ref
-            if not v.get("name"):
-                name = get_name_from_json_ref(v)
-                if name:
-                    v["name"] = name
-        return v
-
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
 
-        if type(self.additionalProperties) == Schema:
+        if type(self.additionalProperties) == SchemaType:
             schemas_by_name.update(self.additionalProperties.schemas_by_name())
 
         return schemas_by_name
 
 
-class OneOfSchema(BaseSchema):
-    oneOf: List[Schema]
+class OneOfSchema(Schema):
+    oneOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -66,10 +53,10 @@ class OneOfSchema(BaseSchema):
         return schemas_by_name
 
 
-class EnumSchema(BaseSchema):
+class EnumSchema(Schema):
     enum: List[Union[str, int, float]]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -77,10 +64,10 @@ class EnumSchema(BaseSchema):
         return schemas_by_name
 
 
-class AllOfSchema(BaseSchema):
-    allOf: List[Schema]
+class AllOfSchema(Schema):
+    allOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -91,10 +78,10 @@ class AllOfSchema(BaseSchema):
         return schemas_by_name
 
 
-class AnyOfSchema(BaseSchema):
-    anyOf: List[Schema]
+class AnyOfSchema(Schema):
+    anyOf: List[SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -105,10 +92,10 @@ class AnyOfSchema(BaseSchema):
         return schemas_by_name
 
 
-class ArraySchema(BaseSchema):
-    items: Schema
+class ArraySchema(Schema):
+    items: SchemaType
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -118,10 +105,10 @@ class ArraySchema(BaseSchema):
         return schemas_by_name
 
 
-class ObjectSchema(BaseSchema):
-    properties: Dict[str, Schema]
+class ObjectSchema(Schema):
+    properties: Dict[str, SchemaType]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.name:
             schemas_by_name[self.name] = self
@@ -132,15 +119,16 @@ class ObjectSchema(BaseSchema):
         return schemas_by_name
 
 
-class RefObject(_Base):
-    ref: str = Field(alias="$ref")
+class SchemasRefObject(_RefObject):
+    _ref_path: Literal["schemas"]
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
-        schemas_by_name = {}
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
+        return self.resolve_ref().schemas_by_name()
 
-        return schemas_by_name
+    def resolve_ref(self) -> SchemaType:
+        return self._root_openapi.get().components.schemas.get(self.name)
 
 
-Schema: TypeAlias = Union[
-    RefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, BaseSchema
+SchemaType: TypeAlias = Union[
+    SchemasRefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
 ]

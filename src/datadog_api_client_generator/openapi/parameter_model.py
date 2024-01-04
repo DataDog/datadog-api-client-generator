@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, TypeAlias, Union
 
 from pydantic import Field
 
-from datadog_api_client_generator.openapi.schema_model import ArraySchema, Schema
-from datadog_api_client_generator.openapi.shared_model import _Base
+from datadog_api_client_generator.openapi.schema_model import ArraySchema, SchemaType
+from datadog_api_client_generator.openapi.shared_model import _Base, _RefObject
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
@@ -14,7 +14,7 @@ class Parameter(_Base):
     description: OptionalEmpty[str] = Empty()
     required: OptionalEmpty[StrBool] = Empty()
     deprecated: OptionalEmpty[StrBool] = Empty()
-    schema: OptionalEmpty[Schema] = Empty()
+    schema: OptionalEmpty[SchemaType] = Empty()
     style: OptionalEmpty[str] = Empty()
     explode: OptionalEmpty[StrBool] = Empty()
     example: OptionalEmpty[Any] = Empty()
@@ -38,9 +38,22 @@ class Parameter(_Base):
 
             return matrix.get((style, explode), "multi")
 
-    def schemas_by_name(self) -> Dict[str, Schema]:
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
         schemas_by_name = {}
         if self.schema:
             schemas_by_name.update(self.schema.schemas_by_name())
 
         return schemas_by_name
+
+
+class ParameterRefObject(_RefObject):
+    _ref_path: Literal["parameters"]
+
+    def schemas_by_name(self) -> Dict[str, SchemaType]:
+        return self.resolve_ref().schemas_by_name()
+
+    def resolve_ref(self) -> Parameter:
+        return self._root_openapi.get().components.parameters.get(self.name)
+
+
+ParameterType: TypeAlias = Union[Parameter, ParameterRefObject]
