@@ -115,10 +115,6 @@ class ObjectSchema(Schema):
 class SchemasRefObject(_RefObject):
     _ref_path: Literal["schemas"]
 
-    @property
-    def properties(self):
-        self.resolve_ref().properties
-
     def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         if self.name not in mapping:
             mapping.update(self.resolve_ref().schemas_by_name(mapping=mapping))

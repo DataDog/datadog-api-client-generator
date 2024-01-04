@@ -39,7 +39,10 @@ class OperationObject(_Base):
     def get_parameters(self) -> Iterator[str, ParameterType]:
         if self.parameters:
             for parameter in self.parameters:
-                if parameter.schema:
+                if isinstance(parameter, ParameterRefObject):
+                    p = parameter.resolve_ref()
+                    yield p.name, p
+                elif parameter.schema:
                     yield parameter.name, parameter
 
         if self.requestBody:
