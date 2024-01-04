@@ -32,7 +32,7 @@ class Schema(_Base):
         if self.name:
             mapping[self.name] = self
 
-        if type(self.additionalProperties) == SchemaType:
+        if isinstance(self.additionalProperties, SchemaType):
             mapping.update(self.additionalProperties.schemas_by_name(mapping=mapping))
 
         return mapping

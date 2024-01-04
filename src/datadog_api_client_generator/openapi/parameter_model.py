@@ -31,7 +31,7 @@ class Parameter(_Base):
             ("form", True): "multi",
             # TODO add more cases from https://swagger.io/specification/#parameter-style
         }
-        if type(self.schema) == ArraySchema:
+        if isinstance(self.schema, ArraySchema):
             in_ = self.in_ or "query"
             style = self.style if self.style else in_to_style[in_]
             explode = self.explode if self.explode is not None else True if style == "form" else False

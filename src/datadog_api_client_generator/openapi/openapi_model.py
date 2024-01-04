@@ -71,7 +71,7 @@ class OpenAPI(_Base):
 
         for path in self.paths:
             for k, v in self.paths[path]:
-                if type(v) == OperationObject:
+                if isinstance(v, OperationObject):
                     tag = v.tags[0] if v.tags else None
                     operations.setdefault(tag, []).append((path, k, v))
 
