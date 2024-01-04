@@ -28,6 +28,13 @@ class Components(_Base):
     schemas: OptionalEmpty[Dict[str, Schema]] = dict()
     parameters: OptionalEmpty[Dict[str, Union[RefObject, Parameter]]] = dict()
 
+    @model_validator(mode="before")
+    def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
+        if "schemas" in v:
+            for k, schema in v["schemas"].items():
+                schema["name"] = k
+        return v
+
 
 class Tag(_Base):
     name: str
