@@ -39,29 +39,27 @@ class OperationObject(_Base):
     def get_parameters(self) -> Iterator[str, ParameterType]:
         if self.parameters:
             for parameter in self.parameters:
-                if parameter.schema:
-                    yield parameter.name, parameter
+                if parameter().schema():
+                    yield parameter().name, parameter()
 
         if self.requestBody:
             if "multipart/form-data" in self.requestBody.content:
                 parent = self.requestBody.content["multipart/form-data"].schema()
-
                 for name, schema in parent.properties.items():
                     yield name, Parameter(
                         **{
                             "in": "form",
-                            "schema": schema,
+                            "schema": schema(),
                             "name": name,
                             "description": self.requestBody.description
                             if self.requestBody.description
-                            else schema.description,
+                            else schema().description,
                             "required": name in parent.required,
                         }
                     )
             else:
                 for content in self.requestBody.content.values():
-                    schema = content.schema
-
+                    schema = content.schema()
                     if schema:
                         yield "body", Parameter(
                             **{
@@ -102,13 +100,13 @@ class OperationObject(_Base):
 
         if self.requestBody:
             for content in self.requestBody.content.values():
-                if content.schema:
-                    mapping.update(content.schema.schemas_by_name(mapping=mapping))
+                if content.schema():
+                    mapping.update(content.schema().schemas_by_name(mapping=mapping))
 
         if self.responses:
             for response in self.responses.values():
-                if response.content:
-                    for content in response.content.values():
+                if response().content:
+                    for content in response().content.values():
                         if content.schema:
                             mapping.update(content.schema.schemas_by_name(mapping=mapping))
 

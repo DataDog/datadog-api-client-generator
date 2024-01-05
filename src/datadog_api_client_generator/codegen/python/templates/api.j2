@@ -126,7 +126,7 @@ class {{ classname }}:
                     "attribute": "{{ name }}",
                     "location": "{{ parameter.in_ }}",
                     {%- endif %}
-      {%- set collection = parameter.get_collection_format() %}
+      {%- set collection = parameter().get_collection_format() %}
       {%- if collection %}
                     "collection_format": "{{ collection }}",
       {%- endif %}

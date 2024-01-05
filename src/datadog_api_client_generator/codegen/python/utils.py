@@ -111,6 +111,7 @@ def is_list_model_whitelisted(name):
 
 
 def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = False):
+    schema = schema()
     if type_ is None:
         if typing:
             return "Any"
@@ -131,10 +132,10 @@ def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = Fa
     elif type_ == "boolean":
         return "bool"
     elif type_ == "array":
-        subtype = type_to_python(schema.items, typing=typing)
+        subtype = type_to_python(schema.items(), typing=typing)
         if typing:
             return "List[{}]".format(subtype)
-        if schema.items.nullable:
+        if schema.items().nullable:
             subtype += ", none_type"
         return "[{}]".format(subtype)
     elif type_ == "object":
@@ -156,16 +157,16 @@ def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = Fa
 
 def get_oneof_types(model: OneOfSchema, typing=False):
     for schema in model.oneOf:
-        type_ = schema.type or "object"
-        if type_ == "object" or is_list_model_whitelisted(schema.name):
-            yield schema.name
+        type_ = schema().type or "object"
+        if type_ == "object" or is_list_model_whitelisted(schema().name):
+            yield schema().name
         else:
-            yield basic_type_to_python(type_, schema, typing=typing)
+            yield basic_type_to_python(type_, schema(), typing=typing)
 
 
 def type_to_python(schema: Schema, typing: bool = False):
     """Return Python type name for the type."""
-
+    schema = schema()
     if type(schema) == OneOfSchema:
         types = list(get_oneof_types(schema, typing=typing))
         if schema.name and typing:
@@ -200,7 +201,7 @@ def get_type_for_parameter(parameter: Parameter, typing: bool = False):
     #     assert "in" not in parameter
     #     for content in parameter["content"].values():
     #         return type_to_python(content["schema"], typing=typing)
-    return type_to_python(parameter.schema, typing=typing)
+    return type_to_python(parameter().schema(), typing=typing)
 
 
 def get_default(operation: OperationObject, attribute_path: str):
@@ -210,13 +211,14 @@ def get_default(operation: OperationObject, attribute_path: str):
             break
     if name == attribute_path:
         # We found a top level attribute matching the full path, let's use the default
-        return parameter.schema.default
+        return parameter().schema().default
 
     if name == "body":
-        parameter = parameter.schema
+        parameter = parameter().schema()
     for attr in attrs[1:]:
-        parameter = parameter.properties[attr]
-    return parameter.default
+        parameter = parameter().properties[attr]()
+
+    return parameter().default
 
 
 def attribute_path(attribute):
@@ -233,14 +235,14 @@ def get_type_at_path(operation: OperationObject, attribute_path: str):
         if int(code) >= 300:
             continue
         for content in response.content.values():
-            if content.schema:
+            if content.schema():
                 break
     if content is None:
         raise RuntimeError("Default response not found")
-    content = content.schema
+    content = content.schema()
     if not attribute_path:
         return get_type_for_items(content)
     for attr in attribute_path.split("."):
-        content = content.properties[attr]
+        content = content.properties[attr]()
 
     return get_type_for_items(content)
