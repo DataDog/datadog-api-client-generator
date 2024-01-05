@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import PosixPath
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from jinja2 import Environment
 
@@ -28,5 +28,5 @@ class BaseCodegen(ABC):
             self.env.globals.update(self.generator_config.additional_globals)
 
     @abstractmethod
-    def generate(self, version: str, spec: OpenAPI, output: PosixPath):
+    def generate(self, specs: List[OpenAPI], output: PosixPath):
         ...

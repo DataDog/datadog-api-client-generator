@@ -27,12 +27,13 @@ def cli(*args, **kwargs):
     generator = generator_cls()
 
     output = kwargs.get("output")
+    specs = {}
     for s in kwargs.get("specs"):
         version = s.parent.name
-
         spec = load_yaml(s)
         spec = OpenAPI.model_validate(spec, context={})
+        specs[version] = spec
 
-        print("--------------------------------------------------------")
-        generator.generate(version=version, spec=spec, output=output)
-        print("--------------------------------------------------------")
+    print("--------------------------------------------------------")
+    generator.generate(specs=specs, output=output)
+    print("--------------------------------------------------------")
