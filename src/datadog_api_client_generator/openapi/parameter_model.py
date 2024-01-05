@@ -4,7 +4,7 @@ from typing import Any, Dict, Literal, TypeAlias, Union
 from pydantic import Field
 
 from datadog_api_client_generator.openapi.schema_model import ArraySchema, SchemaType
-from datadog_api_client_generator.openapi.shared_model import _Base, _RefObject
+from datadog_api_client_generator.openapi.shared_model import _Base, RefObject
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
@@ -45,21 +45,4 @@ class Parameter(_Base):
         return mapping
 
 
-class ParameterRefObject(_RefObject):
-    _ref_path: Literal["parameters"]
-
-    def get_collection_format(self) -> str:
-        return self.resolve_ref().get_collection_format()
-
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
-        param = self.resolve_ref()
-        if param.schema and param.schema.name not in mapping:
-            mapping.update(param.schema.schemas_by_name(mapping=mapping))
-
-        return mapping
-
-    def resolve_ref(self) -> Parameter:
-        return self._root_openapi.get().components.parameters.get(self.name)
-
-
-ParameterType: TypeAlias = Union[Parameter, ParameterRefObject]
+ParameterType: TypeAlias = Union[Parameter, RefObject]

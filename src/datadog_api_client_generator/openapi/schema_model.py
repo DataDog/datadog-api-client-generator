@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
-from datadog_api_client_generator.openapi.shared_model import _Base, _RefObject
+from datadog_api_client_generator.openapi.shared_model import _Base, RefObject
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
@@ -112,19 +112,6 @@ class ObjectSchema(Schema):
         return mapping
 
 
-class SchemasRefObject(_RefObject):
-    _ref_path: Literal["schemas"]
-
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
-        if self.name not in mapping:
-            mapping.update(self.resolve_ref().schemas_by_name(mapping=mapping))
-
-        return mapping
-
-    def resolve_ref(self) -> SchemaType:
-        return self._root_openapi.get().components.schemas.get(self.name)
-
-
 SchemaType: TypeAlias = Union[
-    SchemasRefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
+    RefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
 ]

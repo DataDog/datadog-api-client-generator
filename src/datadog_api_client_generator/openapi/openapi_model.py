@@ -6,8 +6,8 @@ from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
-from datadog_api_client_generator.openapi.schema_model import SchemaType
-from datadog_api_client_generator.openapi.parameter_model import ParameterType
+from datadog_api_client_generator.openapi.schema_model import SchemaType, Schema
+from datadog_api_client_generator.openapi.parameter_model import ParameterType, Parameter
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
 
 

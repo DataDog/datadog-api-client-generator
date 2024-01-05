@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from datadog_api_client_generator.openapi.schema_model import SchemaType, SchemasRefObject
-from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterRefObject, ParameterType
+from datadog_api_client_generator.openapi.schema_model import SchemaType
+from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterType
 from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 
@@ -39,17 +39,12 @@ class OperationObject(_Base):
     def get_parameters(self) -> Iterator[str, ParameterType]:
         if self.parameters:
             for parameter in self.parameters:
-                if isinstance(parameter, ParameterRefObject):
-                    p = parameter.resolve_ref()
-                    yield p.name, p
-                elif parameter.schema:
+                if parameter.schema:
                     yield parameter.name, parameter
 
         if self.requestBody:
             if "multipart/form-data" in self.requestBody.content:
-                parent = self.requestBody.content["multipart/form-data"].schema
-                if isinstance(parent, SchemasRefObject):
-                    parent = parent.resolve_ref()
+                parent = self.requestBody.content["multipart/form-data"].schema()
 
                 for name, schema in parent.properties.items():
                     yield name, Parameter(
@@ -66,8 +61,6 @@ class OperationObject(_Base):
             else:
                 for content in self.requestBody.content.values():
                     schema = content.schema
-                    if isinstance(schema, SchemasRefObject):
-                        schema = schema.resolve_ref()
 
                     if schema:
                         yield "body", Parameter(
@@ -104,8 +97,8 @@ class OperationObject(_Base):
 
     def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
         for _, parameter in self.get_parameters():
-            if parameter:
-                mapping.update(parameter.schemas_by_name(mapping=mapping))
+            if parameter():
+                mapping.update(parameter().schemas_by_name(mapping=mapping))
 
         if self.requestBody:
             for content in self.requestBody.content.values():
