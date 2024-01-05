@@ -33,22 +33,22 @@ class PythonGenerator(BaseCodegen):
         # model_j2 = self.env.get_template("model.j2")
         # models_j2 = self.env.get_template("models.j2")
         init_j2 = self.env.get_template("init.j2")
-        # configuration_j2 = self.env.get_template("configuration.j2")
+        configuration_j2 = self.env.get_template("configuration.j2")
 
-        # extra_files = {
-        #     "api_client.py": self.env.get_template("api_client.j2"),
-        #     "exceptions.py": self.env.get_template("exceptions.j2"),
-        #     "model_utils.py": self.env.get_template("model_utils.j2"),
-        #     "rest.py": self.env.get_template("rest.j2"),
-        # }
+        extra_files = {
+            "api_client.py": self.env.get_template("api_client.j2"),
+            "exceptions.py": self.env.get_template("exceptions.j2"),
+            "model_utils.py": self.env.get_template("model_utils.j2"),
+            "rest.py": self.env.get_template("rest.j2"),
+        }
 
         top_package = output / PACKAGE_NAME
         top_package.mkdir(parents=True, exist_ok=True)
 
-        # for name, template in extra_files.items():
-        #     filename = top_package / name
-        #     with filename.open("w") as fp:
-        #         fp.write(template.render())
+        for name, template in extra_files.items():
+            filename = top_package / name
+            with filename.open("w") as fp:
+                fp.write(template.render())
 
         all_apis = {}
         for version, spec in specs.items():
