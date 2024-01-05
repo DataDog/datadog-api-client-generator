@@ -80,12 +80,12 @@ class OperationObject(_Base):
     def get_accept_headers(self) -> List[str]:
         seen = []
         for response in self.responses.values():
-            if isinstance(response().content, Empty):
-                return [HEADER_ANY_TYPE]
-            else:
-                for media_type in response.content.keys():
+            if getattr(response(), "content"):
+                for media_type in response().content.keys():
                     if media_type not in seen:
                         seen.append(media_type)
+            else:
+                return [HEADER_ANY_TYPE]
 
         return seen
 
