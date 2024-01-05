@@ -1,12 +1,19 @@
 import keyword
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import m2r2
 
 from datadog_api_client_generator.codegen.shared.templates_env import snake_case
 from datadog_api_client_generator.openapi.operation_model import OperationObject
 from datadog_api_client_generator.openapi.parameter_model import Parameter
-from datadog_api_client_generator.openapi.schema_model import ArraySchema, EnumSchema, OneOfSchema, Schema
+from datadog_api_client_generator.openapi.schema_model import (
+    ArraySchema,
+    EnumSchema,
+    ObjectSchema,
+    OneOfSchema,
+    Schema,
+    SchemaType,
+)
 
 
 KEYWORDS = set(keyword.kwlist)
@@ -110,7 +117,7 @@ def is_list_model_whitelisted(name):
     return name in WHITELISTED_LIST_MODELS[API_VERSION]
 
 
-def basic_type_to_python(type_: Optional[str], schema: Schema, typing: bool = False):
+def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool = False):
     schema = schema()
     if type_ is None:
         if typing:
@@ -164,7 +171,7 @@ def get_oneof_types(model: OneOfSchema, typing=False):
             yield basic_type_to_python(type_, schema(), typing=typing)
 
 
-def type_to_python(schema: Schema, typing: bool = False):
+def type_to_python(schema: SchemaType, typing: bool = False):
     """Return Python type name for the type."""
     schema = schema()
     if type(schema) == OneOfSchema:
@@ -246,3 +253,23 @@ def get_type_at_path(operation: OperationObject, attribute_path: str):
         content = content.properties[attr]()
 
     return get_type_for_items(content)
+
+
+def filter_models(models: Dict[str, SchemaType]) -> Dict[str, None]:
+    for name in list(models.keys()):
+        if isinstance(models[name], ArraySchema):
+            if is_list_model_whitelisted(name):
+                continue
+        if isinstance(models[name], EnumSchema):
+            continue
+        if isinstance(models[name], ObjectSchema):
+            continue
+        if isinstance(models[name], OneOfSchema):
+            continue
+        if isinstance(models[name], Schema):
+            if models[name].additionalProperties:
+                continue
+
+        del models[name]
+
+    return models

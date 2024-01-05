@@ -62,6 +62,7 @@ class PythonGenerator(BaseCodegen):
             apis = spec.group_apis_by_tag()
             all_apis[version] = apis
             models = spec.schemas_by_name()
+            utils.filter_models(models)
             tags_by_name = spec.tags_by_name()
 
             # for name, model in models.items():
@@ -78,7 +79,7 @@ class PythonGenerator(BaseCodegen):
             models_path = package / "models" / "__init__.py"
             models_path.parent.mkdir(parents=True, exist_ok=True)
             with models_path.open("w") as fp:
-                fp.write(models_j2.render(models=models))
+                fp.write(models_j2.render(models=sorted(models)))
 
             for name, operations in apis.items():
                 filename = utils.safe_snake_case(name) + "_api.py"
