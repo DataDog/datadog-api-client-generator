@@ -69,9 +69,7 @@ class OperationObject(_Base):
                                 "in": None,
                                 "schema": schema,
                                 "name": "body",
-                                "description": self.requestBody.description
-                                if self.requestBody.description
-                                else schema.description,
+                                "description": self.requestBody.description,
                                 "required": self.requestBody.required,
                             }
                         )
@@ -91,9 +89,9 @@ class OperationObject(_Base):
 
     def get_return_schema(self) -> Optional[SchemaType]:
         for response in self.responses.values():
-            for content in response.content.values():
+            for content in response().content.values():
                 if content.schema:
-                    return content.schema
+                    return content.schema()
             return None
 
     def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
