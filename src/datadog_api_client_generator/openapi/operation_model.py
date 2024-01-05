@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, TypeAlias, Union
 
 from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterType
 from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
-from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
+from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, RefObject, Server
 
 
 class MediaObject(_Base):
@@ -23,6 +23,9 @@ class ResponseObject(_Base):
     description: OptionalEmpty[str] = None
 
 
+ResponseType: TypeAlias = Union[RefObject, ResponseObject]
+
+
 class OperationObject(_Base):
     tags: OptionalEmpty[List[str]] = list()
     summary: OptionalEmpty[str] = Empty()
@@ -32,7 +35,7 @@ class OperationObject(_Base):
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
-    responses: OptionalEmpty[Dict[str, ResponseObject]] = dict()
+    responses: OptionalEmpty[Dict[str, ResponseType]] = dict()
     servers: OptionalEmpty[List[Server]] = list()
     security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 
@@ -77,7 +80,7 @@ class OperationObject(_Base):
     def get_accept_headers(self) -> List[str]:
         seen = []
         for response in self.responses.values():
-            if isinstance(response.content, Empty):
+            if isinstance(response().content, Empty):
                 return [HEADER_ANY_TYPE]
             else:
                 for media_type in response.content.keys():

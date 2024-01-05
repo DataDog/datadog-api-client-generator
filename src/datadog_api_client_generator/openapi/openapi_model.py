@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 
 from pydantic import ValidationInfo, model_validator
 
-from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject
+from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject, ResponseType
 from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
 from datadog_api_client_generator.openapi.schema_model import SchemaType, Schema
 from datadog_api_client_generator.openapi.parameter_model import ParameterType, Parameter
@@ -27,6 +27,7 @@ class OpenAPIInfo(_Base):
 class Components(_Base):
     schemas: OptionalEmpty[Dict[str, SchemaType]] = dict()
     parameters: OptionalEmpty[Dict[str, ParameterType]] = dict()
+    responses: OptionalEmpty[Dict[str, ResponseType]] = dict()
 
     @model_validator(mode="before")
     def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
