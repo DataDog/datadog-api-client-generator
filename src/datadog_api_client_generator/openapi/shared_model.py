@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypeAlias, Union
 from typing_extensions import Unpack
 
 from pydantic import BaseModel, Field, model_validator
-from pydantic.config import ConfigDict
 
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_and_path_from_ref
 
@@ -65,7 +64,10 @@ class RefObject(_Base):
             self._resolved_ref = getattr(self._root_openapi.get().components, self.ref_components_path).get(self.name)
         return self._resolved_ref
 
-    def schemas_by_name(self, mapping: Dict[str, Any] = {}) -> Dict[str, Any]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        if mapping is None:
+            mapping = {}
+
         if self.name not in mapping:
             mapping.update(self().schemas_by_name(mapping=mapping))
 

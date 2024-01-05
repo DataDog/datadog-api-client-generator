@@ -31,7 +31,7 @@ class PythonGenerator(BaseCodegen):
         api_j2 = self.env.get_template("api.j2")
         apis_j2 = self.env.get_template("apis.j2")
         # model_j2 = self.env.get_template("model.j2")
-        # models_j2 = self.env.get_template("models.j2")
+        models_j2 = self.env.get_template("models.j2")
         init_j2 = self.env.get_template("init.j2")
         configuration_j2 = self.env.get_template("configuration.j2")
 
@@ -71,14 +71,14 @@ class PythonGenerator(BaseCodegen):
             #     with model_path.open("w") as fp:
             #         fp.write(model_j2.render(name=name, model=model))
 
-            # model_init_path = package / "model" / "__init__.py"
-            # with model_init_path.open("w") as fp:
-            #     fp.write("")
+            model_init_path = package / "model" / "__init__.py"
+            with model_init_path.open("w") as fp:
+                fp.write("")
 
-            # models_path = package / "models" / "__init__.py"
-            # models_path.parent.mkdir(parents=True, exist_ok=True)
-            # with models_path.open("w") as fp:
-            #     fp.write(models_j2.render(models=sorted(models)))
+            models_path = package / "models" / "__init__.py"
+            models_path.parent.mkdir(parents=True, exist_ok=True)
+            with models_path.open("w") as fp:
+                fp.write(models_j2.render(models=models))
 
             for name, operations in apis.items():
                 filename = utils.safe_snake_case(name) + "_api.py"

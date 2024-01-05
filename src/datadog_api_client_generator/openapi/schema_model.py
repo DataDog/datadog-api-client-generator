@@ -28,7 +28,10 @@ class Schema(_Base):
     exclusiveMinimum: OptionalEmpty[StrBool] = Empty()
     exclusiveMaximum: OptionalEmpty[StrBool] = Empty()
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -41,7 +44,10 @@ class Schema(_Base):
 class OneOfSchema(Schema):
     oneOf: List[SchemaType]
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -54,7 +60,10 @@ class OneOfSchema(Schema):
 class EnumSchema(Schema):
     enum: List[Union[str, int, float]]
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -64,7 +73,10 @@ class EnumSchema(Schema):
 class AllOfSchema(Schema):
     allOf: List[SchemaType]
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -77,7 +89,10 @@ class AllOfSchema(Schema):
 class AnyOfSchema(Schema):
     anyOf: List[SchemaType]
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -90,7 +105,10 @@ class AnyOfSchema(Schema):
 class ArraySchema(Schema):
     items: SchemaType
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 
@@ -102,7 +120,10 @@ class ArraySchema(Schema):
 class ObjectSchema(Schema):
     properties: Dict[str, SchemaType]
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.name:
             mapping[self.name] = self
 

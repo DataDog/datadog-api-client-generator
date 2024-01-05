@@ -94,7 +94,10 @@ class OperationObject(_Base):
                     return content.schema()
             return None
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         for _, parameter in self.get_parameters():
             if parameter():
                 mapping.update(parameter().schemas_by_name(mapping=mapping))
@@ -128,7 +131,10 @@ class PathsItemObject(_Base):
     patch: OptionalEmpty[OperationObject] = Empty()
     trace: OptionalEmpty[OperationObject] = Empty()
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.get:
             mapping.update(self.get.schemas_by_name(mapping=mapping))
         if self.put:

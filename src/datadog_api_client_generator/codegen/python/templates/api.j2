@@ -20,7 +20,7 @@ from {{ package }}.model_utils import (
 )
 
 {%- set seen_imports = {} %}
-{%- for path, method, operation in operations  %}
+{%- for path, method, operation in operations|sort  %}
 {%- for model in operation.schemas_by_name()|sort %}
 {%- set import_name = "%s.%s.%s.%s" | format(package, version, model|safe_snake_case, model) %}
 {%- if not seen_imports.get(import_name) %}

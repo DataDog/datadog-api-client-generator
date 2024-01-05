@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, Literal, TypeAlias, Union
+from typing import Any, Dict, Literal, Optional, TypeAlias, Union
 
 from pydantic import Field
 
@@ -38,7 +38,10 @@ class Parameter(_Base):
 
             return matrix.get((style, explode), "multi")
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         if self.schema:
             mapping.update(self.schema.schemas_by_name(mapping=mapping))
 

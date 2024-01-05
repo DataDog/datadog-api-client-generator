@@ -1,6 +1,6 @@
 from __future__ import annotations
 from contextvars import ContextVar
-from typing import Dict, List, TypeAlias, Union
+from typing import Dict, List, Optional, TypeAlias, Union
 
 from pydantic import ValidationInfo, model_validator
 
@@ -79,7 +79,10 @@ class OpenAPI(_Base):
 
         return operations
 
-    def schemas_by_name(self, mapping: Dict[str, SchemaType] = {}) -> Dict[str, SchemaType]:
+    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+        if mapping is None:
+            mapping = {}
+
         for path in self.paths.values():
             mapping.update(path.schemas_by_name(mapping=mapping))
 
