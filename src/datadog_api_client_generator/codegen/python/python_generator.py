@@ -102,6 +102,6 @@ class PythonGenerator(BaseCodegen):
             with init_path.open("w") as fp:
                 fp.write(init_j2.render())
 
-        # filename = top_package / "configuration.py"
-        # with filename.open("w") as fp:
-        #     fp.write(configuration_j2.render(specs=specs, apis=all_apis))
+        filename = top_package / "configuration.py"
+        with filename.open("w") as fp:
+            fp.write(configuration_j2.render(specs=specs, apis=all_apis))

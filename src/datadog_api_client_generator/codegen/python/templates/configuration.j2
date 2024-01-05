@@ -237,7 +237,7 @@ class Configuration:
         {%- for version, api in apis.items() %}
         {%- for operations in api.values() %}
         {%- for _, _, operation in operations|sort(attribute="2.operationId") %}
-        {%- if "x-unstable" in operation %}
+        {%- if operation.extensions["x-unstable"] %}
             "{{ version }}.{{ operation.operationId|safe_snake_case }}": False,
         {%- endif %}
         {%- endfor %}
@@ -422,7 +422,7 @@ class Configuration:
                 "url": "{{ server.url }}",
                 "description": "{{ server.description|default("No description provided") }}",
                 "variables": {
-                {%- for name, variable in server.get("variables", {}).items() %}
+                {%- for name, variable in server.variables.items() %}
                     "{{ name }}": {
                         "description": "{{ variable.description|default("No description provided") }}",
                         "default_value": "{{ variable.default }}",

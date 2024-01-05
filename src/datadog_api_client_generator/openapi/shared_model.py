@@ -1,12 +1,12 @@
 from __future__ import annotations
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypeAlias, Union
 from typing_extensions import Unpack
 
 from pydantic import BaseModel, Field, model_validator
 from pydantic.config import ConfigDict
 
-from datadog_api_client_generator.openapi.utils import get_name_and_path_from_ref
+from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_and_path_from_ref
 
 
 if TYPE_CHECKING:
@@ -74,16 +74,30 @@ class RefObject(_Base):
 
 class ExternalDocs(_Base):
     url: str
-    description: Optional[str] = None
+    description: OptionalEmpty[str] = Empty()
 
 
 class ServerVariable(_Base):
     default: str
-    description: Optional[str] = None
+    description: OptionalEmpty[str] = Empty()
     enum: Optional[List[str]] = list()
 
 
 class Server(_Base):
     url: str
-    description: Optional[str] = None
+    description: OptionalEmpty[str] = Empty()
     variables: Optional[Dict[str, ServerVariable]] = dict()
+
+
+class SecurityScheme(_Base):
+    type: str
+    name: str
+    scheme: str
+    in_: Optional[str] = Field(alias="in")
+    description: OptionalEmpty[str] = Empty()
+    bearerFormat: OptionalEmpty[str] = Empty()
+    flows: OptionalEmpty[Dict] = Empty()
+    openIdConnectUrl: OptionalEmpty[str] = Empty()
+
+
+SecuritySchemeType: TypeAlias = Union[SecurityScheme, RefObject]

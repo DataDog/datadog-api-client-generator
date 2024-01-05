@@ -1,11 +1,11 @@
 from __future__ import annotations
 from contextvars import ContextVar
-from typing import Dict, List, Union
+from typing import Dict, List, TypeAlias, Union
 
 from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject, ResponseType
-from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, Server
+from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, SecuritySchemeType, Server
 from datadog_api_client_generator.openapi.schema_model import SchemaType, Schema
 from datadog_api_client_generator.openapi.parameter_model import ParameterType, Parameter
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
@@ -28,6 +28,7 @@ class Components(_Base):
     schemas: OptionalEmpty[Dict[str, SchemaType]] = dict()
     parameters: OptionalEmpty[Dict[str, ParameterType]] = dict()
     responses: OptionalEmpty[Dict[str, ResponseType]] = dict()
+    securitySchemes: OptionalEmpty[Dict[str, SecuritySchemeType]] = dict()
 
     @model_validator(mode="before")
     def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
