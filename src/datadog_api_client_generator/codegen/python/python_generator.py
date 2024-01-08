@@ -18,19 +18,31 @@ class PythonGenerator(BaseCodegen):
             "attribute_name": utils.attribute_name,
             "return_type": utils.return_type,
             "attribute_path": utils.attribute_path,
+            "format_value": utils.format_value,
         },
         additional_globals={
             "package": PACKAGE_NAME,
             "get_type_for_parameter": utils.get_type_for_parameter,
             "get_type_at_path": utils.get_type_at_path,
             "get_default": utils.get_default,
+            "get_references_for_model": utils.get_references_for_model,
+            "get_oneof_references_for_model": utils.get_oneof_references_for_model,
+            "get_types_for_attribute": utils.get_types_for_attribute,
+            "get_typing_for_attribute": utils.get_typing_for_attribute,
+            "get_type_for_attribute": utils.get_type_for_attribute,
+            "type_to_python": utils.type_to_python,
+            "get_enum_default": utils.get_enum_default,
+            "get_enum_type": utils.get_enum_type,
+            "get_oneof_models": utils.get_oneof_models,
+            "get_oneof_parameters": utils.get_oneof_parameters,
+            "get_oneof_types": utils.get_oneof_types,
         },
     )
 
     def generate(self, specs: List[OpenAPI], output: PosixPath) -> None:
         api_j2 = self.env.get_template("api.j2")
         apis_j2 = self.env.get_template("apis.j2")
-        # model_j2 = self.env.get_template("model.j2")
+        model_j2 = self.env.get_template("model.j2")
         models_j2 = self.env.get_template("models.j2")
         init_j2 = self.env.get_template("init.j2")
         configuration_j2 = self.env.get_template("configuration.j2")
@@ -65,12 +77,12 @@ class PythonGenerator(BaseCodegen):
             utils.filter_models(models)
             tags_by_name = spec.tags_by_name()
 
-            # for name, model in models.items():
-            #     filename = formatter.safe_snake_case(name) + ".py"
-            #     model_path = package / "model" / filename
-            #     model_path.parent.mkdir(parents=True, exist_ok=True)
-            #     with model_path.open("w") as fp:
-            #         fp.write(model_j2.render(name=name, model=model))
+            for name, model in models.items():
+                filename = utils.safe_snake_case(name) + ".py"
+                model_path = package / "model" / filename
+                model_path.parent.mkdir(parents=True, exist_ok=True)
+                with model_path.open("w") as fp:
+                    fp.write(model_j2.render(name=name, model=model))
 
             model_init_path = package / "model" / "__init__.py"
             with model_init_path.open("w") as fp:

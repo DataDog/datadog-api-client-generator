@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 import m2r2
 
 from datadog_api_client_generator.codegen.shared.templates_env import snake_case
+from datadog_api_client_generator.codegen.shared.utils import camel_case
 from datadog_api_client_generator.openapi.operation_model import OperationObject
 from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.schema_model import (
@@ -14,6 +15,7 @@ from datadog_api_client_generator.openapi.schema_model import (
     Schema,
     SchemaType,
 )
+from datadog_api_client_generator.openapi.shared_model import RefObject
 
 
 KEYWORDS = set(keyword.kwlist)
@@ -64,6 +66,8 @@ WHITELISTED_LIST_MODELS = {
         "TimeseriesResponseValuesList",
     ),
 }
+
+PRIMITIVE_TYPES = ["string", "number", "boolean", "integer"]
 
 
 def safe_snake_case(value: str) -> str:
@@ -119,7 +123,7 @@ def is_list_model_whitelisted(name):
 
 def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool = False):
     schema = schema()
-    if type_ is None:
+    if not type_:
         if typing:
             return "Any"
         return "bool, date, datetime, dict, float, int, list, str, UUID, none_type"
@@ -163,7 +167,7 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
 
 
 def get_oneof_types(model: OneOfSchema, typing=False):
-    for schema in model.oneOf:
+    for schema in model().oneOf:
         type_ = schema().type or "object"
         if type_ == "object" or is_list_model_whitelisted(schema().name):
             yield schema().name
@@ -176,9 +180,10 @@ def type_to_python(schema: SchemaType, typing: bool = False):
     schema = schema()
     if type(schema) == OneOfSchema:
         types = list(get_oneof_types(schema, typing=typing))
-        if schema.name and typing:
-            types.insert(0, schema.name)
-        type_ = ", ".join(types)
+
+        if schema().name and typing:
+            types.insert(0, schema().name)
+            type_ = ", ".join(types)
         if typing:
             return f"Union[{type_}]"
         elif schema.name:
@@ -273,3 +278,168 @@ def filter_models(models: Dict[str, SchemaType]) -> Dict[str, None]:
         del models[name]
 
     return models
+
+
+def find_non_primitive_type(schema: SchemaType):
+    if isinstance(schema(), EnumSchema):
+        return True
+    return schema().type not in PRIMITIVE_TYPES
+
+
+def get_references_for_model(model: SchemaType, model_name: str):
+    result = {}
+    top_name = model().name or model_name
+    if isinstance(model(), ObjectSchema):
+        for key, definition in model().properties.items():
+            if (
+                definition().type == "object"
+                or isinstance(definition(), EnumSchema)
+                or isinstance(definition(), OneOfSchema)
+            ):
+                name = definition().name
+                if name:
+                    result[name] = None
+                elif isinstance(definition(), ObjectSchema) and top_name:
+                    result[top_name + camel_case(key)] = None
+                elif isinstance(definition().additionalProperties, SchemaType):
+                    name = definition().additionalProperties().name
+                    if name:
+                        result[name] = None
+            elif isinstance(definition(), ArraySchema):
+                name = definition().name
+                if name and is_list_model_whitelisted(name):
+                    result[name] = None
+                else:
+                    items_name = definition().items().name
+                    if items_name:
+                        if is_list_model_whitelisted(items_name):
+                            result[items_name] = None
+                        elif isinstance(definition().items(), ArraySchema):
+                            result[definition().items().name] = None
+                        elif find_non_primitive_type(definition().items()):
+                            result[items_name] = None
+            elif isinstance(definition(), ObjectSchema) and top_name:
+                result[top_name + camel_case(key)] = None
+    if isinstance(model().additionalProperties, SchemaType):
+        definition = model().additionalProperties()
+        if definition.name:
+            result[definition.name] = None
+        elif isinstance(definition(), ArraySchema):
+            name = definition().items().name
+            if name:
+                result[name] = None
+    result.pop(model_name, None)
+    return list(result)
+
+
+def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: Dict[str, str] = None):
+    result = {}
+    if seen is None:
+        seen = set()
+    name = model().name
+    if name:
+        if name in seen:
+            return []
+        seen.add(name)
+
+    if isinstance(model(), OneOfSchema):
+        for schema in model().oneOf:
+            type_ = schema().type or "object"
+
+            oneof_name = schema().name
+            if type_ == "object" or is_list_model_whitelisted(oneof_name):
+                result[oneof_name] = None
+            elif isinstance(schema(), ArraySchema):
+                sub_name = schema().items().name
+                if sub_name:
+                    result[sub_name] = None
+
+    if isinstance(model(), ObjectSchema):
+        for key, definition in model().properties.items():
+            result.update({k: None for k in get_oneof_references_for_model(definition(), model_name, seen)})
+            if isinstance(definition(), ArraySchema):
+                result.update({k: None for k in get_oneof_references_for_model(definition().items(), model_name, seen)})
+            if isinstance(definition().additionalProperties, SchemaType):
+                result.update(
+                    {
+                        k: None
+                        for k in get_oneof_references_for_model(definition().additionalProperties(), model_name, seen)
+                    }
+                )
+    result.pop(model_name, None)
+    return list(result)
+
+
+def get_type_for_attribute(schema: SchemaType, attribute: str, current_name: Optional[str] = None):
+    """Return Python type name for the attribute."""
+    if isinstance(schema(), SchemaType):
+        child_schema = schema().properties.get(attribute)
+        return type_to_python(child_schema)
+
+
+def get_typing_for_attribute(
+    schema: SchemaType, attribute: str, current_name: Optional[str] = None, optional: Optional[str] = False
+):
+    if isinstance(schema(), SchemaType):
+        child_schema = schema().properties.get(attribute)()
+        attr_type = type_to_python(child_schema, typing=True)
+        if child_schema.nullable:
+            attr_type = f"Union[{attr_type}, none_type]"
+        if optional:
+            if attr_type.startswith("Union"):
+                return attr_type[:-1] + ", UnsetType]"
+            return f"Union[{attr_type}, UnsetType]"
+        return attr_type
+
+
+def get_types_for_attribute(schema: SchemaType, attribute: str, current_name: Optional[str] = None):
+    if isinstance(schema(), SchemaType):
+        child_schema = schema().properties.get(attribute)()
+        base_type = get_type_for_attribute(schema, attribute, current_name)
+        if child_schema.nullable and not child_schema.name:
+            return f"({base_type}, none_type)"
+        return f"({base_type},)"
+
+
+def format_value(value: Any, quotes: str = '"'):
+    if isinstance(value, str):
+        return f"{quotes}{value}{quotes}"
+    elif isinstance(value, bool):
+        return "true" if value else "false"
+    return value
+
+
+def get_enum_default(model: EnumSchema):
+    return model().enum[0] if len(model.enum) == 1 else model().default
+
+
+def get_enum_type(schema: EnumSchema):
+    if schema().type == "integer":
+        return "int"
+    elif schema().type == "string":
+        return "str"
+
+    raise ValueError(f"Unknown type {schema().type}")
+
+
+def get_oneof_models(model: OneOfSchema):
+    result = []
+    for schema in model.oneOf:
+        type_ = schema().type or "object"
+        if type_ == "object" or is_list_model_whitelisted(schema().name):
+            result.append(schema().name)
+        elif type_ == "array":
+            name = schema().items().name
+            if name:
+                result.append(name)
+    return result
+
+
+def get_oneof_parameters(model: OneOfSchema):
+    seen = set()
+    for schema in model.oneOf:
+        if isinstance(schema(), ObjectSchema):
+            for attr, definition in schema().properties.items():
+                if attr not in seen:
+                    seen.add(attr)
+                    yield attr, definition(), schema

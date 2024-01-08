@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 class {{ name }}(ModelNormal):
 
 {%- set validation_ns = namespace(started=false) %}
-{%- for attr, definition in model.get("properties", {}).items() %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
 {%- set has_validation = (
       (not definition.nullable and required) or
       definition.maxLength is defined or
@@ -50,11 +51,13 @@ class {{ name }}(ModelNormal):
         },
 {%- endif %}
 {%- endfor %}
+{%- endif %}
 {%- if validation_ns.started %}
     }
 {%- endif %}
 
-{%- if model.get("additionalProperties", false) is not false %}
+{%- set additionalProperties = model.additionalProperties if model.additionalProperties is defined else false %}
+{%- if additionalProperties is not false %}
     @cached_property
     def additional_properties_type(_):
 {%- if refs %}
@@ -62,7 +65,7 @@ class {{ name }}(ModelNormal):
         from {{ package }}.{{ version }}.model.{{ ref|safe_snake_case }} import {{ ref }}
 {%- endfor %}
 {%- endif %}
-        return ({{ type_to_python(model["additionalProperties"]) }},)
+        return ({{ type_to_python(model.additionalProperties) }},)
 {%- endif %}
 
 {%- if model.nullable %}
@@ -95,7 +98,8 @@ class {{ name }}(ModelNormal):
 {%- endfor %}
 
 {%- set read_only_ns = namespace(started=false) %}
-{%- for attr, definition in model.get("properties", {}).items() %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
         {%- if definition.readOnly %}
 {%- if not read_only_ns.started %}
     read_only_vars = {
@@ -104,40 +108,51 @@ class {{ name }}(ModelNormal):
         "{{ attr|attribute_name }}",
         {%- endif %}
 {%- endfor %}
+{%- endif %}
 {%- if read_only_ns.started %}
     }
 {%- endif %}
 
     def __init__(self_,
-{%- for attr, definition in model.get("properties", {}).items() %}
-        {%- if attr in model.get("required", []) and (definition.get("default") == None or definition.enum) %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name) }},{% endif %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
+        {%- if attr in model.required and (not definition.default or definition.enum) %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name) }},{% endif %}
 {%- endfor %}
-{%- for attr, definition in model.get("properties", {}).items() %}
-        {%- if attr not in model.get("required", []) %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name, optional=True) }}=unset,{% endif %}
-{%- endfor %} **kwargs):
+{%- endif %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
+        {%- if attr not in model.required %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name, optional=True) }}=unset,{% endif %}
+{%- endfor %}
+{%- endif %} **kwargs):
         """
         {{ model.description|docstring|indent(8) }}
-{%- for attr, definition in model.get("properties", {}).items() %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
 {# keep new line #}
-        :param {{ attr|attribute_name }}: {{ definition.description|docstring|indent(12) }}{% if definition.deprecated %} **Deprecated**.{% endif %}
-        :type {{ attr|attribute_name }}: {{ get_type_for_attribute(model, attr, current_name=name) }}{% if definition.nullable %}, none_type{% endif %}{% if attr not in model.get("required", []) %}, optional{% endif %}
+        :param {{ attr|attribute_name }}: {{ definition().description|docstring|indent(12) }}{% if definition().deprecated %} **Deprecated**.{% endif %}
+        :type {{ attr|attribute_name }}: {{ get_type_for_attribute(model, attr, current_name=name) }}{% if definition().nullable %}, none_type{% endif %}{% if attr not in model.required %}, optional{% endif %}
 {%- endfor %}
+{%- endif %}
         """
-{%- for attr, definition in model.get("properties", {}).items() %}
-        {%- if attr not in model.get("required", []) %}
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
+        {%- if attr not in model.required %}
         if {{ attr|attribute_name }} is not unset:
              kwargs["{{ attr|attribute_name }}"] = {{ attr|attribute_name }}
         {%- endif %}
 {%- endfor %}
+{%- endif %}
         super().__init__(kwargs)
 
-{%- for attr, definition in model.get("properties", {}).items() %}
-        {%- if attr in model.get("required", []) and definition.get("default") != None and not definition.enum %}
-        {{ attr|attribute_name }} = kwargs.get("{{ attr|attribute_name }}", {{ definition["default"]|format_value }})
+{%- if model.properties is defined %}
+{%- for attr, definition in model.properties.items() %}
+        {%- if attr in model.required and definition().default and not definition().enum %}
+        {{ attr|attribute_name }} = kwargs.get("{{ attr|attribute_name }}", {{ definition().default|format_value }})
         {%- endif %}
 {%- endfor %}
+{%- endif %}
 
 {% for attr in model.properties %}
-        {%- if attr in model.get("required", []) %}
+        {%- if attr in model.required %}
         self_.{{ attr|attribute_name }} = {{ attr|attribute_name }}{% endif %}
 {%- endfor %}

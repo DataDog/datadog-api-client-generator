@@ -16,7 +16,7 @@ class {{ name }}(ModelSimple):
     }
 
 {%- for index, value in enumerate(model.enum) %}
-    {{ model["x-enum-varnames"][index] or value.upper() }}: ClassVar["{{ name }}"]
+    {{ model.extensions["x-enum-varnames"][index] or value.upper() }}: ClassVar["{{ name }}"]
 {%- endfor %}
 
 {% if model.nullable %}
@@ -31,5 +31,5 @@ class {{ name }}(ModelSimple):
 
 
 {%- for index, value in enumerate(model.enum) %}
-{{ name }}.{{ model["x-enum-varnames"][index] or value.upper() }} = {{ name }}({{ value|format_value(quotes='"') }})
+{{ name }}.{{ model.extensions["x-enum-varnames"][index] or value.upper() }} = {{ name }}({{ value|format_value(quotes='"') }})
 {%- endfor %}
