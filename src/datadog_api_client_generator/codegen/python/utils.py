@@ -16,6 +16,7 @@ from datadog_api_client_generator.openapi.schema_model import (
     SchemaType,
 )
 from datadog_api_client_generator.openapi.shared_model import RefObject
+from datadog_api_client_generator.openapi.utils import Empty
 
 
 KEYWORDS = set(keyword.kwlist)
@@ -150,10 +151,10 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
             subtype += ", none_type"
         return "[{}]".format(subtype)
     elif type_ == "object":
-        if "additionalProperties" in schema:
-            nested_schema = schema["additionalProperties"]
+        if not isinstance(schema.additionalProperties, Empty):
+            nested_schema = schema.additionalProperties
             nested_name = type_to_python(nested_schema, typing=typing)
-            if nested_schema.get("nullable"):
+            if nested_schema().nullable:
                 if typing:
                     nested_name = f"Union[{nested_name}, none_type]"
                 else:

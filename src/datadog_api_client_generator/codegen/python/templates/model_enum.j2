@@ -5,7 +5,7 @@ class {{ name }}(ModelSimple):
     """
     {{ model.description|indent(8) }}
 
-    :param value: {%- if default %} If omitted defaults to {{ default|format_value }}.{%- endif %} Must be one of [{%- for value in model.enum %}{{ value|format_value }}{% if not loop.last %}, {% endif %}{%- endfor %}].
+    :param value: {%- if default is defined %} If omitted defaults to {{ default|format_value }}.{%- endif %} Must be one of [{%- for value in model.enum %}{{ value|format_value }}{% if not loop.last %}, {% endif %}{%- endfor %}].
     :type value: {{ get_enum_type(model) }}
     """
 

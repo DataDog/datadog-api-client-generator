@@ -15,14 +15,14 @@ class {{ name }}(ModelNormal):
 {%- if model.properties is defined %}
 {%- for attr, definition in model.properties.items() %}
 {%- set has_validation = (
-      (not definition.nullable and required) or
-      definition.maxLength is defined or
-      definition.minLength is defined or
-      definition.maximum is defined or
-      definition.minimum is defined or
-      definition.pattern is defined or
-      definition.maxItems is defined or
-      definition.minItems is defined
+      (not definition().nullable and required) or
+      definition().maxLength is defined or
+      definition().minLength is defined or
+      definition().maximum is defined or
+      definition().minimum is defined or
+      definition().pattern is defined or
+      definition().maxItems is defined or
+      definition().minItems is defined
     ) %}
 {%- if has_validation %}
 {%- if not validation_ns.started %}
@@ -30,23 +30,23 @@ class {{ name }}(ModelNormal):
 {%- set validation_ns.started = true %}
 {%- endif %}
         "{{ attr|attribute_name }}": {
-{%- if definition.maxLength is defined %}
-            "max_length": {{ definition.maxLength }},
+{%- if definition().maxLength is defined %}
+            "max_length": {{ definition().maxLength }},
 {%- endif %}
-{%- if definition.minLength is defined %}
-            "min_length": {{ definition.minLength }},
+{%- if definition().minLength is defined %}
+            "min_length": {{ definition().minLength }},
 {%- endif %}
-{%- if definition.maxItems is defined %}
-            "max_items": {{ definition.maxItems }},
+{%- if definition().maxItems is defined %}
+            "max_items": {{ definition().maxItems }},
 {%- endif %}
-{%- if definition.minItems is defined %}
-            "min_items": {{ definition.minItems }},
+{%- if definition().minItems is defined %}
+            "min_items": {{ definition().minItems }},
 {%- endif %}
-{%- if definition.maximum is defined %}
-            "{% if definition.exclusiveMaximum %}exclusive{% else %}inclusive{% endif %}_maximum": {{ definition.maximum }},
+{%- if definition().maximum is defined %}
+            "{% if definition().exclusiveMaximum %}exclusive{% else %}inclusive{% endif %}_maximum": {{ definition().maximum }},
 {%- endif %}
-{%- if definition.minimum is defined %}
-            "{% if definition.exclusiveMinimum %}exclusive{% else %}inclusive{% endif %}_minimum": {{ definition.minimum }},
+{%- if definition().minimum is defined %}
+            "{% if definition().exclusiveMinimum %}exclusive{% else %}inclusive{% endif %}_minimum": {{ definition().minimum }},
 {%- endif %}
         },
 {%- endif %}
@@ -116,7 +116,7 @@ class {{ name }}(ModelNormal):
     def __init__(self_,
 {%- if model.properties is defined %}
 {%- for attr, definition in model.properties.items() %}
-        {%- if attr in model.required and (not definition.default or definition.enum) %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name) }},{% endif %}
+        {%- if attr in model.required and (definition().default is not defined or definition().enum) %} {{ attr|attribute_name }}: {{ get_typing_for_attribute(model, attr, current_name=name) }},{% endif %}
 {%- endfor %}
 {%- endif %}
 {%- if model.properties is defined %}
@@ -146,7 +146,7 @@ class {{ name }}(ModelNormal):
 
 {%- if model.properties is defined %}
 {%- for attr, definition in model.properties.items() %}
-        {%- if attr in model.required and definition().default and not definition().enum %}
+        {%- if attr in model.required and definition().default is defined and not definition().enum %}
         {{ attr|attribute_name }} = kwargs.get("{{ attr|attribute_name }}", {{ definition().default|format_value }})
         {%- endif %}
 {%- endfor %}
