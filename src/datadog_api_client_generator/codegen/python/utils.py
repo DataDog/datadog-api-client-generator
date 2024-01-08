@@ -183,7 +183,7 @@ def type_to_python(schema: SchemaType, typing: bool = False):
 
         if schema().name and typing:
             types.insert(0, schema().name)
-            type_ = ", ".join(types)
+        type_ = ", ".join(types)
         if typing:
             return f"Union[{type_}]"
         elif schema.name:

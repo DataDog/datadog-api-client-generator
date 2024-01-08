@@ -27,6 +27,8 @@ class Schema(_Base):
     minItems: OptionalEmpty[int] = Empty()
     exclusiveMinimum: OptionalEmpty[StrBool] = Empty()
     exclusiveMaximum: OptionalEmpty[StrBool] = Empty()
+    readOnly: OptionalEmpty[StrBool] = Empty()
+    writeOnly: OptionalEmpty[StrBool] = Empty()
 
     def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
         if mapping is None:

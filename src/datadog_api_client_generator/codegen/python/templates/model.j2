@@ -22,7 +22,7 @@ from {{ package }}.model_utils import (
 {% include "model_enum.j2" %}
 {%- elif model().oneOf is defined -%}
 {% include "model_oneof.j2" %}
-{%- elif model().type == array -%}
+{%- elif model().type == "array" -%}
 {% include "model_simple.j2" %}
 {%- else -%}
 {% include "model_generic.j2" %}

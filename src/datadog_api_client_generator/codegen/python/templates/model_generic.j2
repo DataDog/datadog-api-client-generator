@@ -100,7 +100,7 @@ class {{ name }}(ModelNormal):
 {%- set read_only_ns = namespace(started=false) %}
 {%- if model.properties is defined %}
 {%- for attr, definition in model.properties.items() %}
-        {%- if definition.readOnly %}
+        {%- if definition().readOnly %}
 {%- if not read_only_ns.started %}
     read_only_vars = {
 {%- set read_only_ns.started = true %}
