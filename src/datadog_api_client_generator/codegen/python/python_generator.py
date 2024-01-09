@@ -32,10 +32,10 @@ class PythonGenerator(BaseCodegen):
             "get_type_for_attribute": utils.get_type_for_attribute,
             "type_to_python": utils.type_to_python,
             "get_enum_default": utils.get_enum_default,
-            "get_enum_type": utils.get_enum_type,
             "get_oneof_models": utils.get_oneof_models,
             "get_oneof_parameters": utils.get_oneof_parameters,
             "get_oneof_types": utils.get_oneof_types,
+            "basic_type_to_python": utils.basic_type_to_python,
         },
     )
 

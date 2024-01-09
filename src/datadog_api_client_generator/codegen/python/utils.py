@@ -414,15 +414,6 @@ def get_enum_default(model: EnumSchema):
     return model().enum[0] if len(model.enum) == 1 else model().default
 
 
-def get_enum_type(schema: EnumSchema):
-    if schema().type == "integer":
-        return "int"
-    elif schema().type == "string":
-        return "str"
-
-    raise ValueError(f"Unknown type {schema().type}")
-
-
 def get_oneof_models(model: OneOfSchema):
     result = []
     for schema in model.oneOf:

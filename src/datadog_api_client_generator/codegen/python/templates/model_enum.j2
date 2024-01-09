@@ -6,7 +6,7 @@ class {{ name }}(ModelSimple):
     {{ model.description|indent(8) }}
 
     :param value: {%- if default is defined %} If omitted defaults to {{ default|format_value }}.{%- endif %} Must be one of [{%- for value in model.enum %}{{ value|format_value }}{% if not loop.last %}, {% endif %}{%- endfor %}].
-    :type value: {{ get_enum_type(model) }}
+    :type value: {{ basic_type_to_python(model.type, model) }}
     """
 
     allowed_values = {
@@ -26,7 +26,7 @@ class {{ name }}(ModelSimple):
     @cached_property
     def openapi_types(_):
         return {
-            "value": ({{ get_enum_type(model) }},),
+            "value": ({{ basic_type_to_python(model.type, model) }},),
         }
 
 
