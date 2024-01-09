@@ -316,7 +316,7 @@ def get_references_for_model(model: SchemaType, model_name: str):
                         if is_list_model_whitelisted(items_name):
                             result[items_name] = None
                         elif isinstance(definition().items(), ArraySchema):
-                            result[definition().items().name] = None
+                            result[definition().items().items().name] = None
                         elif find_non_primitive_type(definition().items()):
                             result[items_name] = None
             elif isinstance(definition(), ObjectSchema) and top_name:
