@@ -2,7 +2,15 @@ import pytest
 from pydantic_core import ValidationError
 
 from datadog_api_client_generator.openapi.openapi_model import OpenAPI
-from datadog_api_client_generator.openapi.schema_model import ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
+from datadog_api_client_generator.openapi.schema_model import (
+    ArraySchema,
+    AnyOfSchema,
+    AllOfSchema,
+    EnumSchema,
+    OneOfSchema,
+    ObjectSchema,
+    Schema,
+)
 from datadog_api_client_generator.openapi.shared_model import RefObject
 
 
@@ -20,7 +28,10 @@ class TestOpenAPISchemas:
 
         assert hasattr(object_schema, "properties")
         assert type(object_schema) == ObjectSchema
-        assert set(object_schema.properties.keys()) == {"code", "message",}
+        assert set(object_schema.properties.keys()) == {
+            "code",
+            "message",
+        }
 
     def test_one_of_schema(self, openapi_basic: OpenAPI):
         one_of_schema = openapi_basic.components.schemas["OneOfPet"]
@@ -44,32 +55,22 @@ class TestOpenAPISchemas:
 
 
 class TestEnumSchema:
-    valid_schema = {
-        "description": "enum schema",
-        "enum": ["foo", "BAR"],
-        "x-enum-varnames": ["FOO", "BAR"]
-    }
-    invalid_schema = {
-        "description": "enum schema",
-        "x-enum-varnames": ["FOO", "BAR"]
-    }
+    valid_schema = {"description": "enum schema", "enum": ["foo", "BAR"], "x-enum-varnames": ["FOO", "BAR"]}
+    invalid_schema = {"description": "enum schema", "x-enum-varnames": ["FOO", "BAR"]}
 
     def test_schema(self):
         m = EnumSchema.model_validate(self.valid_schema)
 
         assert m.enum[0] == "foo"
         assert m.extensions["x-enum-varnames"][0] == "FOO"
-    
+
     def test_invalid_schema(self):
         with pytest.raises(ValidationError):
             EnumSchema.model_validate(self.invalid_schema)
 
 
 class TestOneOfSchema:
-    valid_schema = {
-        "description": "oneof schema",
-        "oneOf": [{"$ref": '#/components/schemas/Dog'}]
-    }
+    valid_schema = {"description": "oneof schema", "oneOf": [{"$ref": "#/components/schemas/Dog"}]}
     invalid_schema = {
         "description": "oneof schema",
         "type": "object",
@@ -79,17 +80,14 @@ class TestOneOfSchema:
         m = OneOfSchema.model_validate(self.valid_schema)
 
         assert type(m.oneOf[0]) == RefObject
-    
+
     def test_invalid_enum_schema(self):
         with pytest.raises(ValidationError):
             OneOfSchema.model_validate(self.invalid_schema)
 
 
 class TestOneOfSchema:
-    valid_schema = {
-        "description": "array schema",
-        "items": {"$ref": '#/components/schemas/Dog'}
-    }
+    valid_schema = {"description": "array schema", "items": {"$ref": "#/components/schemas/Dog"}}
     invalid_schema = {
         "description": "oneof schema",
         "type": "object",
@@ -99,7 +97,7 @@ class TestOneOfSchema:
         m = ArraySchema.model_validate(self.valid_schema)
 
         assert type(m.items) == RefObject
-    
+
     def test_invalid_enum_schema(self):
         with pytest.raises(ValidationError):
             ArraySchema.model_validate(self.invalid_schema)

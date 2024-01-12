@@ -14,4 +14,3 @@ def openapi_basic():
     f = load_yaml(ROOT_PATH / "tests/examples/openapi.yaml")
 
     return OpenAPI.model_validate(f, context={})
-
