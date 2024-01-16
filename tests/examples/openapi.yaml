@@ -128,6 +128,37 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    OneOfPet:
+      oneOf:
+        - $ref: '#/components/schemas/Dog'
+        - $ref: '#/components/schemas/Cat'
+
+    Dog:
+      allOf:
+        - $ref: '#/components/schemas/NewPet'
+        - required:
+          - id
+          properties:
+            id:
+              type: integer
+              format: int64
+            name:
+              type: string
+              example: 'Rex'
+
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/NewPet'
+        - required:
+          - id
+          properties:
+            id:
+              type: integer
+              format: int64
+            name:
+              type: string
+              example: 'Felix'
+
     Pet:
       allOf:
         - $ref: '#/components/schemas/NewPet'
@@ -148,6 +179,20 @@ components:
           type: string
         tag:
           type: string    
+
+    Pets:
+      type: array
+      items:
+        $ref: '#/components/schemas/Pet'
+
+    PetType:
+      type: string
+      enum:
+        - dog
+        - cat
+      x-enum-varnames:
+        - DOG
+        - CAT
 
     Error:
       type: object
