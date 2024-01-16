@@ -22,6 +22,7 @@ class TestOpenAPISchemas:
         assert type(all_of_schema) == AllOfSchema
         assert type(all_of_schema.allOf[0]) == RefObject
         assert type(all_of_schema.allOf[1]) == ObjectSchema
+        assert callable(all_of_schema)
 
     def test_object_schema(self, openapi_basic: OpenAPI):
         object_schema = openapi_basic.components.schemas["Error"]
@@ -32,6 +33,7 @@ class TestOpenAPISchemas:
             "code",
             "message",
         }
+        assert callable(object_schema)
 
     def test_one_of_schema(self, openapi_basic: OpenAPI):
         one_of_schema = openapi_basic.components.schemas["OneOfPet"]
@@ -40,18 +42,21 @@ class TestOpenAPISchemas:
         assert type(one_of_schema) == OneOfSchema
         assert type(one_of_schema.oneOf[0]) == RefObject
         assert one_of_schema.oneOf[0].name == "Dog"
+        assert callable(one_of_schema)
 
     def test_array_schema(self, openapi_basic: OpenAPI):
         array_schema = openapi_basic.components.schemas["Pets"]
 
         assert hasattr(array_schema, "items")
         assert type(array_schema) == ArraySchema
+        assert callable(array_schema)
 
-    def test_array_schema(self, openapi_basic: OpenAPI):
-        array_schema = openapi_basic.components.schemas["PetType"]
+    def test_enum_schema(self, openapi_basic: OpenAPI):
+        enum_schema = openapi_basic.components.schemas["PetType"]
 
-        assert hasattr(array_schema, "enum")
-        assert type(array_schema) == EnumSchema
+        assert hasattr(enum_schema, "enum")
+        assert type(enum_schema) == EnumSchema
+        assert callable(enum_schema)
 
 
 class TestEnumSchema:
@@ -101,3 +106,22 @@ class TestOneOfSchema:
     def test_invalid_enum_schema(self):
         with pytest.raises(ValidationError):
             ArraySchema.model_validate(self.invalid_schema)
+
+
+class TestRefObject:
+    valid_schema = {
+        "$ref": "#/components/schemas/Dog"
+    }
+    invalid_schema = {
+        "description": "oneof schema",
+        "type": "object",
+    }
+
+    def test_schema(self):
+        m = RefObject.model_validate(self.valid_schema)
+
+        assert type(m) == RefObject
+
+    def test_invalid_enum_schema(self):
+        with pytest.raises(ValidationError):
+            RefObject.model_validate(self.invalid_schema)
