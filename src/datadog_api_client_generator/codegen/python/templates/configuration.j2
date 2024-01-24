@@ -248,9 +248,9 @@ class Configuration:
         # Load default values from environment
         if "DD_SITE" in os.environ:
             self.server_variables["site"] = os.environ["DD_SITE"]
-        if "DD_API_KEY" in os.environ:
+        if "DD_API_KEY" in os.environ and not self.api_key.get("apiKeyAuth"):
             self.api_key["apiKeyAuth"] = os.environ["DD_API_KEY"]
-        if "DD_APP_KEY" in os.environ:
+        if "DD_APP_KEY" in os.environ and not self.api_key.get("appKeyAuth"):
             self.api_key["appKeyAuth"] = os.environ["DD_APP_KEY"]
 
     def __deepcopy__(self, memo):
@@ -500,14 +500,14 @@ class Configuration:
         auth = {}
 {%- for name, schema in specs[version].components.securitySchemes.items() %}
 {%- if schema.type == "apiKey" %}
-        if "{{name}}" in self.api_key{% if "x-auth-id-alias" in schema %} or "{{ schema["x-auth-id-alias"] }}" in self.api_key{% endif %}:
+        if "{{name}}" in self.api_key{% if "x-auth-id-alias" in schema.extensions %} or "{{ schema.extensions["x-auth-id-alias"] }}" in self.api_key{% endif %}:
             auth["{{name}}"] = {
                 "type": "api_key",
                 "in": "{{ schema.in }}",
                 "key": "{{ schema.name }}",
                 "value": self.get_api_key_with_prefix(
-                    "{{name}}",{% if "x-auth-id-alias" in schema %}
-                    alias="{{ schema["x-auth-id-alias"] }}",{%- endif %}
+                    "{{name}}",{% if "x-auth-id-alias" in schema.extensions %}
+                    alias="{{ schema.extensions["x-auth-id-alias"] }}",{%- endif %}
                 ),
             }
 {%- elif schema.type == "http" and schema.scheme == "basic" %}
