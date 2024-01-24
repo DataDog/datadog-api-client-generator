@@ -73,9 +73,6 @@ class RefObject(_Base):
         if recursive:
             mapping.update(self().schemas_by_name(mapping=mapping))
 
-        if self.name and include_self:
-            mapping[self.name] = self
-
         return mapping
 
 
