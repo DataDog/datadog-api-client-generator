@@ -94,25 +94,37 @@ class OperationObject(_Base):
                     return content.schema()
             return None
 
-    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+    def schemas_by_name(
+        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
+    ) -> Dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
         for _, parameter in self.get_parameters():
             if parameter():
-                mapping.update(parameter().schemas_by_name(mapping=mapping))
+                mapping.update(
+                    parameter().schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self)
+                )
 
         if self.requestBody:
             for content in self.requestBody.content.values():
                 if content.schema():
-                    mapping.update(content.schema().schemas_by_name(mapping=mapping))
+                    mapping.update(
+                        content.schema().schemas_by_name(
+                            mapping=mapping, recursive=recursive, include_self=include_self
+                        )
+                    )
 
         if self.responses:
             for response in self.responses.values():
                 if response().content:
                     for content in response().content.values():
                         if content.schema:
-                            mapping.update(content.schema.schemas_by_name(mapping=mapping))
+                            mapping.update(
+                                content.schema.schemas_by_name(
+                                    mapping=mapping, recursive=recursive, include_self=include_self
+                                )
+                            )
 
         return mapping
 
@@ -131,25 +143,29 @@ class PathsItemObject(_Base):
     patch: OptionalEmpty[OperationObject] = Empty()
     trace: OptionalEmpty[OperationObject] = Empty()
 
-    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+    def schemas_by_name(
+        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
+    ) -> Dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
         if self.get:
-            mapping.update(self.get.schemas_by_name(mapping=mapping))
+            mapping.update(self.get.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.put:
-            mapping.update(self.put.schemas_by_name(mapping=mapping))
+            mapping.update(self.put.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.post:
-            mapping.update(self.post.schemas_by_name(mapping=mapping))
+            mapping.update(self.post.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.delete:
-            mapping.update(self.delete.schemas_by_name(mapping=mapping))
+            mapping.update(self.delete.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.options:
-            mapping.update(self.options.schemas_by_name(mapping=mapping))
+            mapping.update(
+                self.options.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self)
+            )
         if self.head:
-            mapping.update(self.head.schemas_by_name(mapping=mapping))
+            mapping.update(self.head.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.patch:
-            mapping.update(self.patch.schemas_by_name(mapping=mapping))
+            mapping.update(self.patch.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
         if self.trace:
-            mapping.update(self.trace.schemas_by_name(mapping=mapping))
+            mapping.update(self.trace.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
 
         return mapping

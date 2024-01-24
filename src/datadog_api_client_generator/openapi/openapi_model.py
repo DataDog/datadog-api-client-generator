@@ -79,11 +79,13 @@ class OpenAPI(_Base):
 
         return operations
 
-    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+    def schemas_by_name(
+        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
+    ) -> Dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
         for path in self.paths.values():
-            mapping.update(path.schemas_by_name(mapping=mapping))
+            mapping.update(path.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
 
         return mapping
