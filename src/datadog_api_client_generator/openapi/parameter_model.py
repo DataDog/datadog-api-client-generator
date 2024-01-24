@@ -48,4 +48,17 @@ class Parameter(_Base):
         return mapping
 
 
-ParameterType: TypeAlias = Union[Parameter, RefObject]
+class ParamRef(RefObject):
+    _resolved_ref: Parameter = None
+
+    def __call__(self) -> Parameter:
+        return self._resolve_ref()
+
+    def _resolve_ref(self) -> Parameter:
+        if self._resolved_ref is None:
+            self._resolved_ref = getattr(self._root_openapi.get().components, self.ref_components_path).get(self.name)
+
+        return self._resolved_ref
+
+
+ParameterType: TypeAlias = Union[Parameter, ParamRef]

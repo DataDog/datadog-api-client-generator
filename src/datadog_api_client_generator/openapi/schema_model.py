@@ -135,6 +135,19 @@ class ObjectSchema(Schema):
         return mapping
 
 
+class SchemaRef(RefObject):
+    _resolved_ref: Schema = None
+
+    def __call__(self) -> Schema:
+        return self._resolve_ref()
+
+    def _resolve_ref(self) -> Schema:
+        if self._resolved_ref is None:
+            self._resolved_ref = getattr(self._root_openapi.get().components, self.ref_components_path).get(self.name)
+
+        return self._resolved_ref
+
+
 SchemaType: TypeAlias = Union[
-    RefObject, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
+    SchemaRef, ArraySchema, AnyOfSchema, AllOfSchema, EnumSchema, OneOfSchema, ObjectSchema, Schema
 ]

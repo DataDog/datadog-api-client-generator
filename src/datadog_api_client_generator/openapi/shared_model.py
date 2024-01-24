@@ -46,7 +46,7 @@ class RefObject(_Base):
     ref: str = Field(alias="$ref")
     name: str
     ref_components_path: str
-    _resolved_ref: Union[Schema, Parameter] = None
+    _resolved_ref: Any = None
 
     @model_validator(mode="before")
     def _inject_ref_properties(cls, v: Any) -> Dict:

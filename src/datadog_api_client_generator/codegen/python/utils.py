@@ -15,7 +15,6 @@ from datadog_api_client_generator.openapi.schema_model import (
     Schema,
     SchemaType,
 )
-from datadog_api_client_generator.openapi.shared_model import RefObject
 from datadog_api_client_generator.openapi.utils import Empty
 
 
