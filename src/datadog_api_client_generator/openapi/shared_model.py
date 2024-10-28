@@ -46,7 +46,7 @@ class RefObject(_Base):
     ref: str = Field(alias="$ref")
     name: str
     ref_components_path: str
-    _resolved_ref: Union[Schema, Parameter] = None
+    _resolved_ref: Any = None
 
     @model_validator(mode="before")
     def _inject_ref_properties(cls, v: Any) -> Dict:
@@ -64,12 +64,17 @@ class RefObject(_Base):
             self._resolved_ref = getattr(self._root_openapi.get().components, self.ref_components_path).get(self.name)
         return self._resolved_ref
 
-    def schemas_by_name(self, mapping: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def schemas_by_name(
+        self, mapping: Optional[Dict[str, Any]] = None, recursive: bool = True, include_self: bool = True
+    ) -> Dict[str, Any]:
         if mapping is None:
             mapping = {}
 
-        if self.name not in mapping:
+        if recursive:
             mapping.update(self().schemas_by_name(mapping=mapping))
+
+        if self.name and include_self:
+            mapping[self.name] = self()
 
         return mapping
 
