@@ -38,12 +38,14 @@ class Parameter(_Base):
 
             return matrix.get((style, explode), "multi")
 
-    def schemas_by_name(self, mapping: Optional[Dict[str, SchemaType]] = None) -> Dict[str, SchemaType]:
+    def schemas_by_name(
+        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
+    ) -> Dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
         if self.schema:
-            mapping.update(self.schema.schemas_by_name(mapping=mapping))
+            mapping.update(self.schema.schemas_by_name(mapping=mapping, recursive=recursive, include_self=include_self))
 
         return mapping
 
