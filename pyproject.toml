@@ -19,6 +19,26 @@ generate = "datadog_api_client_generator.cli:cli"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.3"
+ruff = "^0.9.9"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "N",  # PEP8 naming convetions
+    "D"  # pydocstyle
+]
+ignore = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [build-system]
 requires = ["poetry-core"]
