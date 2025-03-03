@@ -38,15 +38,11 @@ OptionalEmpty = Union[T, type(None), Empty]
 
 
 def load_yaml(path: PosixPath) -> Dict:
-    """
-    Return openapi specification from yaml file.
-    """
+    """Return openapi specification from yaml file."""
     with path.open() as fp:
         return yaml.load(fp, Loader=yaml.CSafeLoader)
 
 
 def get_name_and_path_from_ref(ref: str) -> Tuple[str, str]:
-    """
-    Return name and path from $ref value.
-    """
+    """Return name and path from $ref value."""
     return ref.split("/")[-2:]

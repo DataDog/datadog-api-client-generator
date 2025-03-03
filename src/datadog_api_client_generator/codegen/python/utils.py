@@ -79,8 +79,8 @@ def safe_snake_case(value: str) -> str:
 
 
 def escape_reserved_keyword(word: str) -> str:
-    """
-    Escape reserved language keywords like openapi generator does it
+    """Escape reserved language keywords like openapi generator does it.
+
     :param word: Word to escape
     :return: The escaped word if it was a reserved keyword, the word unchanged otherwise
     """
@@ -220,19 +220,19 @@ def get_type_for_parameter(parameter: Parameter, typing: bool = False):
 
 def get_default(operation: OperationObject, attribute_path: str):
     attrs = attribute_path.split(".")
-    for name, parameter in operation.get_parameters():
+    for name, _parameter in operation.get_parameters():
         if name == attrs[0]:
             break
     if name == attribute_path:
         # We found a top level attribute matching the full path, let's use the default
-        return parameter().schema().default
+        return _parameter().schema().default
 
     if name == "body":
-        parameter = parameter().schema()
+        _parameter = _parameter().schema()
     for attr in attrs[1:]:
-        parameter = parameter().properties[attr]()
+        _parameter = _parameter().properties[attr]()
 
-    return parameter().default
+    return _parameter().default
 
 
 def attribute_path(attribute):
@@ -355,7 +355,7 @@ def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: Dic
                     result[sub_name] = None
 
     if isinstance(model(), ObjectSchema):
-        for key, definition in model().properties.items():
+        for _key, definition in model().properties.items():
             result.update({k: None for k in get_oneof_references_for_model(definition(), model_name, seen)})
             if isinstance(definition(), ArraySchema):
                 result.update({k: None for k in get_oneof_references_for_model(definition().items(), model_name, seen)})

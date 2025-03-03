@@ -23,7 +23,7 @@ class RequestBody(_Base):
 
 
 class ResponseObject(_Base):
-    content: OptionalEmpty[Dict[str, MediaObject]] = dict()
+    content: OptionalEmpty[Dict[str, MediaObject]] = {}
     description: OptionalEmpty[str] = None
 
 
@@ -31,16 +31,16 @@ ResponseType: TypeAlias = Union[RefObject, ResponseObject]
 
 
 class OperationObject(_Base):
-    tags: OptionalEmpty[List[str]] = list()
+    tags: OptionalEmpty[List[str]] = []
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     operationId: OptionalEmpty[str] = Empty()
-    parameters: OptionalEmpty[List[ParameterType]] = list()
+    parameters: OptionalEmpty[List[ParameterType]] = []
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
-    responses: OptionalEmpty[Dict[str, ResponseType]] = dict()
-    servers: OptionalEmpty[List[Server]] = list()
+    responses: OptionalEmpty[Dict[str, ResponseType]] = {}
+    servers: OptionalEmpty[List[Server]] = []
     security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 
     def get_parameters(self) -> Iterator[str, ParameterType]:
@@ -136,8 +136,8 @@ class OperationObject(_Base):
 class PathsItemObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
-    servers: OptionalEmpty[List[Server]] = list()
-    parameters: OptionalEmpty[List[ParameterType]] = list()
+    servers: OptionalEmpty[List[Server]] = []
+    parameters: OptionalEmpty[List[ParameterType]] = []
     get: OptionalEmpty[OperationObject] = Empty()
     put: OptionalEmpty[OperationObject] = Empty()
     post: OptionalEmpty[OperationObject] = Empty()

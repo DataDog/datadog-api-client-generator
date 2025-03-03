@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class _Base(BaseModel):
-    extensions: Dict[str, Any] = dict()
+    extensions: Dict[str, Any] = {}
     _root_openapi: Optional[ContextVar[OpenAPI]] = None
 
     @model_validator(mode="before")
@@ -87,13 +87,13 @@ class ExternalDocs(_Base):
 class ServerVariable(_Base):
     default: str
     description: OptionalEmpty[str] = Empty()
-    enum: Optional[List[str]] = list()
+    enum: Optional[List[str]] = []
 
 
 class Server(_Base):
     url: str
     description: OptionalEmpty[str] = Empty()
-    variables: Optional[Dict[str, ServerVariable]] = dict()
+    variables: Optional[Dict[str, ServerVariable]] = {}
 
 
 class SecurityScheme(_Base):

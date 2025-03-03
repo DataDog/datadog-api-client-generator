@@ -29,10 +29,10 @@ class OpenAPIInfo(_Base):
 
 
 class Components(_Base):
-    schemas: OptionalEmpty[Dict[str, SchemaType]] = dict()
-    parameters: OptionalEmpty[Dict[str, ParameterType]] = dict()
-    responses: OptionalEmpty[Dict[str, ResponseType]] = dict()
-    securitySchemes: OptionalEmpty[Dict[str, SecuritySchemeType]] = dict()
+    schemas: OptionalEmpty[Dict[str, SchemaType]] = {}
+    parameters: OptionalEmpty[Dict[str, ParameterType]] = {}
+    responses: OptionalEmpty[Dict[str, ResponseType]] = {}
+    securitySchemes: OptionalEmpty[Dict[str, SecuritySchemeType]] = {}
 
     @model_validator(mode="before")
     def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
@@ -52,8 +52,8 @@ class OpenAPI(_Base):
     info: OpenAPIInfo
     paths: Dict[str, PathsItemObject]
     components: OptionalEmpty[Components] = Empty()
-    servers: OptionalEmpty[List[Server]] = list()
-    tags: OptionalEmpty[List[Tag]] = list()
+    servers: OptionalEmpty[List[Server]] = []
+    tags: OptionalEmpty[List[Tag]] = []
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
 

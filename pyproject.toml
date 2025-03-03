@@ -26,16 +26,25 @@ line-length = 120
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "N",  # PEP8 naming convetions
-    "D"  # pydocstyle
+    "A",
+    "B",
+    "C4",
+    "D",
+    "E",
+    "F",
+    "G",
+    "I",
+    "W",
 ]
-ignore = []
+ignore = [
+    "A003",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

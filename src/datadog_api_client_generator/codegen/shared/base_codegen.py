@@ -24,10 +24,12 @@ class BaseCodegen(ABC):
     generator_config: GeneratorConfig
 
     def __init__(self) -> None:
+        """Initialize the generator environment."""
         self.env: Environment = build_default_jinja2_env()
 
         if self.generator_config.additional_filters:
             self.env.filters.update(self.generator_config.additional_filters)
+        return
         if self.generator_config.additional_globals:
             self.env.globals.update(self.generator_config.additional_globals)
 
