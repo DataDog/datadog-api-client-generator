@@ -53,29 +53,35 @@ class OperationObject(_Base):
             if "multipart/form-data" in self.requestBody.content:
                 parent = self.requestBody.content["multipart/form-data"].schema()
                 for name, schema in parent.properties.items():
-                    yield name, Parameter(
-                        **{
-                            "in": "form",
-                            "schema": schema(),
-                            "name": name,
-                            "description": self.requestBody.description
-                            if self.requestBody.description
-                            else schema().description,
-                            "required": name in parent.required,
-                        }
+                    yield (
+                        name,
+                        Parameter(
+                            **{
+                                "in": "form",
+                                "schema": schema(),
+                                "name": name,
+                                "description": self.requestBody.description
+                                if self.requestBody.description
+                                else schema().description,
+                                "required": name in parent.required,
+                            }
+                        ),
                     )
             else:
                 for content in self.requestBody.content.values():
                     schema = content.schema()
                     if schema:
-                        yield "body", Parameter(
-                            **{
-                                "in": None,
-                                "schema": schema,
-                                "name": "body",
-                                "description": self.requestBody.description,
-                                "required": self.requestBody.required,
-                            }
+                        yield (
+                            "body",
+                            Parameter(
+                                **{
+                                    "in": None,
+                                    "schema": schema,
+                                    "name": "body",
+                                    "description": self.requestBody.description,
+                                    "required": self.requestBody.required,
+                                }
+                            ),
                         )
                     break
 

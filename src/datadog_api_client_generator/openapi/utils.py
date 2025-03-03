@@ -22,11 +22,9 @@ class Empty(Undefined):
     def __bool__(self) -> bool:
         return False
 
-    def __copy__(self):
-        ...
+    def __copy__(self): ...
 
-    def __deepcopy__(self, memo: Any):
-        ...
+    def __deepcopy__(self, memo: Any): ...
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> any:

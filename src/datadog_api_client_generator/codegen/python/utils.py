@@ -293,9 +293,7 @@ def get_references_for_model(model: SchemaType, model_name: str):
     top_name = model().name or model_name
     if isinstance(model(), ObjectSchema):
         for key, definition in model().properties.items():
-            if (
-                isinstance(definition(), (EnumSchema, OneOfSchema))
-            ):
+            if isinstance(definition(), (EnumSchema, OneOfSchema)):
                 name = definition().name
                 if name:
                     result[name] = None

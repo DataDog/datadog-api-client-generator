@@ -34,5 +34,4 @@ class BaseCodegen(ABC):
             self.env.globals.update(self.generator_config.additional_globals)
 
     @abstractmethod
-    def generate(self, specs: List[OpenAPI], output: PosixPath):
-        ...
+    def generate(self, specs: List[OpenAPI], output: PosixPath): ...
