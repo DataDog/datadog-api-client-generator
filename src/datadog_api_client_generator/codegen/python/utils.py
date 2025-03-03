@@ -1,5 +1,5 @@
 import keyword
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import m2r2
 
@@ -16,7 +16,6 @@ from datadog_api_client_generator.openapi.schema_model import (
     SchemaType,
 )
 from datadog_api_client_generator.openapi.utils import Empty
-
 
 KEYWORDS = set(keyword.kwlist)
 KEYWORDS.add("property")
@@ -97,10 +96,10 @@ class CustomRenderer(m2r2.RestRenderer):
             text = text.replace("\\ ``", "").replace("``\\ ", "")
         if "`_" in text:
             return text
-        return "\\ **{}**\\ ".format(text)
+        return f"\\ **{text}**\\ "
 
     def header(self, text, level, raw=None) -> str:
-        return "\n{}\n".format(self.double_emphasis(text))
+        return f"\n{self.double_emphasis(text)}\n"
 
 
 def docstring(text) -> Any:
@@ -145,10 +144,10 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
     elif type_ == "array":
         subtype = type_to_python(schema.items(), typing=typing)
         if typing:
-            return "List[{}]".format(subtype)
+            return f"List[{subtype}]"
         if schema.items().nullable:
             subtype += ", none_type"
-        return "[{}]".format(subtype)
+        return f"[{subtype}]"
     elif type_ == "object":
         if not isinstance(schema.additionalProperties, Empty):
             nested_schema = schema.additionalProperties
@@ -160,7 +159,7 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
                     nested_name += ", none_type"
             if typing:
                 return f"Dict[str, {nested_name}]"
-            return "{{str: ({},)}}".format(nested_name)
+            return f"{{str: ({nested_name},)}}"
         return "dict"
     else:
         raise ValueError(f"Unknown type {type_}")
@@ -292,9 +291,7 @@ def get_references_for_model(model: SchemaType, model_name: str):
     if isinstance(model(), ObjectSchema):
         for key, definition in model().properties.items():
             if (
-                definition().type == "object"
-                or isinstance(definition(), EnumSchema)
-                or isinstance(definition(), OneOfSchema)
+                isinstance(definition(), (EnumSchema, OneOfSchema))
             ):
                 name = definition().name
                 if name:

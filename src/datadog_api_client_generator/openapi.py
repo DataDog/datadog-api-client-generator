@@ -1,8 +1,8 @@
 import pathlib
 
+import yaml
 from jsonref import JsonRef
 from yaml import CSafeLoader
-import yaml
 
 
 def load(filename):

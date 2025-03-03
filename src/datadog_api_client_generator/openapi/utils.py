@@ -1,12 +1,10 @@
-from jinja2 import Undefined
-import yaml
 from pathlib import PosixPath
-from typing import Annotated, Any, Dict, Optional, Self, Tuple, TypeVar, Union
+from typing import Annotated, Any, Dict, Tuple, TypeVar, Union
 
+import yaml
+from jinja2 import Undefined
 from pydantic import GetCoreSchemaHandler, PlainValidator
 from pydantic_core import core_schema
-from jsonref import JsonRef
-
 
 HEADER_ANY_TYPE = "*/*"
 

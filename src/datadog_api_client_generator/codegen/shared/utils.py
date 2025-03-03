@@ -1,6 +1,5 @@
 import re
 
-
 PATTERN_WHITESPACE = re.compile(r"\W")
 PATTERN_LEADING_ALPHA = re.compile(r"(.)([A-Z][a-z]+)")
 PATTERN_FOLLOWING_ALPHA = re.compile(r"([a-z0-9])([A-Z])")

@@ -1,8 +1,8 @@
 import pathlib
-import re
 from typing import Any, Dict
 
 from jinja2 import Environment, FileSystemLoader
+
 from datadog_api_client_generator.codegen.shared.utils import camel_case, snake_case
 
 

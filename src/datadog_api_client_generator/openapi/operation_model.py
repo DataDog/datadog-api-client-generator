@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import Any, Dict, Iterator, List, Optional, TypeAlias, Union
 
-from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterType
-from datadog_api_client_generator.openapi.utils import Empty, HEADER_ANY_TYPE, OptionalEmpty, StrBool
-from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, RefObject, Server
+from datadog_api_client_generator.openapi.schema_model import SchemaType
+from datadog_api_client_generator.openapi.shared_model import ExternalDocs, RefObject, Server, _Base
+from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, Empty, OptionalEmpty, StrBool
 
 
 class MediaObject(_Base):
@@ -78,7 +79,7 @@ class OperationObject(_Base):
     def get_accept_headers(self) -> List[str]:
         seen = []
         for response in self.responses.values():
-            if getattr(response(), "content"):
+            if response().content:
                 for media_type in response().content.keys():
                     if media_type not in seen:
                         seen.append(media_type)

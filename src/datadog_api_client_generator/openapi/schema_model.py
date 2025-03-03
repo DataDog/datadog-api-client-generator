@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
-from datadog_api_client_generator.openapi.shared_model import _Base, RefObject
+from typing import Any, Dict, List, Literal, Optional, TypeAlias, Union
+
+from datadog_api_client_generator.openapi.shared_model import RefObject, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 

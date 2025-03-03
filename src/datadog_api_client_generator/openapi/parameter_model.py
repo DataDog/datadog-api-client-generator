@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import Any, Dict, Literal, Optional, TypeAlias, Union
 
 from pydantic import Field
 
 from datadog_api_client_generator.openapi.schema_model import ArraySchema, SchemaType
-from datadog_api_client_generator.openapi.shared_model import _Base, RefObject
+from datadog_api_client_generator.openapi.shared_model import RefObject, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 

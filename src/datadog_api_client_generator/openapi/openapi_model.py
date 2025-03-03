@@ -1,13 +1,14 @@
 from __future__ import annotations
+
 from contextvars import ContextVar
-from typing import Dict, List, Optional, TypeAlias, Union
+from typing import Dict, List, Optional
 
 from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject, ResponseType
-from datadog_api_client_generator.openapi.shared_model import _Base, ExternalDocs, SecuritySchemeType, Server
-from datadog_api_client_generator.openapi.schema_model import SchemaType, Schema
-from datadog_api_client_generator.openapi.parameter_model import ParameterType, Parameter
+from datadog_api_client_generator.openapi.parameter_model import ParameterType
+from datadog_api_client_generator.openapi.schema_model import SchemaType
+from datadog_api_client_generator.openapi.shared_model import ExternalDocs, SecuritySchemeType, Server, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
 
 

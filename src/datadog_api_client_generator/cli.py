@@ -1,11 +1,10 @@
-from contextvars import ContextVar
 import pathlib
 
 import click
 
 from datadog_api_client_generator.codegen import GENERATORS
-from datadog_api_client_generator.openapi.utils import load_yaml
 from datadog_api_client_generator.openapi.openapi_model import OpenAPI
+from datadog_api_client_generator.openapi.utils import load_yaml
 
 
 @click.command()

@@ -1,17 +1,14 @@
 from __future__ import annotations
+
 from contextvars import ContextVar
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypeAlias, Union
-from typing_extensions import Unpack
 
 from pydantic import BaseModel, Field, model_validator
 
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_and_path_from_ref
 
-
 if TYPE_CHECKING:
     from datadog_api_client_generator.openapi.openapi_model import OpenAPI
-    from datadog_api_client_generator.openapi.parameter_model import Parameter
-    from datadog_api_client_generator.openapi.schema_model import Schema
 
 
 class _Base(BaseModel):
@@ -20,7 +17,7 @@ class _Base(BaseModel):
 
     @model_validator(mode="before")
     def _remap_extensions(cls, v: Any) -> Dict:
-        if not isinstance(v, BaseModel) and callable(getattr(v, "keys")):
+        if not isinstance(v, BaseModel) and callable(v.keys):
             # Remap extensions
             extensions = v.get("extensions", {})
             for k in list(v.keys()):
