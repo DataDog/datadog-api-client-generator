@@ -12,7 +12,7 @@ from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, Str
 class Schema(_Base):
     name: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
-    required: list[str] | None = None
+    required: list[str] = []
     type: OptionalEmpty[Literal["string", "number", "integer", "boolean", "array", "object"]] = Empty()
     format: OptionalEmpty[
         Literal["int32", "int64", "float", "double", "byte", "binary", "date", "date-time", "password", "email", "uuid"]

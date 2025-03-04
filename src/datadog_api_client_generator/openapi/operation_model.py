@@ -23,7 +23,7 @@ class RequestBody(_Base):
 
 
 class ResponseObject(_Base):
-    content: OptionalEmpty[dict[str, MediaObject]] = None
+    content: OptionalEmpty[dict[str, MediaObject]] = {}
     description: OptionalEmpty[str] = None
 
 
@@ -39,8 +39,8 @@ class OperationObject(_Base):
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
-    responses: OptionalEmpty[dict[str, ResponseType]] = None
-    servers: OptionalEmpty[list[Server]] = None
+    responses: OptionalEmpty[dict[str, ResponseType]] = {}
+    servers: OptionalEmpty[list[Server]] = []
     security: OptionalEmpty[list[dict[str, list[str]]]] = Empty()
 
     def get_parameters(self) -> Iterator[str, ParameterType]:

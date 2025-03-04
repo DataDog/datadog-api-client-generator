@@ -11,6 +11,8 @@ from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 from datadog_api_client_generator.openapi.utils import load_yaml
 
 logger = logging.getLogger(__name__)
+_format = "%(asctime)s - %(levelname)s - %(message)s"
+logging.basicConfig(format=_format, level=logging.INFO)
 
 @click.command()
 @click.argument(

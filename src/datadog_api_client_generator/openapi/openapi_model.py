@@ -28,14 +28,13 @@ class OpenAPIInfo(_Base):
 
 
 class Components(_Base):
-    schemas: OptionalEmpty[dict[str, SchemaType]] = None
-    parameters: OptionalEmpty[dict[str, ParameterType]] = None
-    responses: OptionalEmpty[dict[str, ResponseType]] = None
-    securitySchemes: OptionalEmpty[dict[str, SecuritySchemeType]] = None
+    schemas: OptionalEmpty[dict[str, SchemaType]] = {}
+    parameters: OptionalEmpty[dict[str, ParameterType]] = {}
+    responses: OptionalEmpty[dict[str, ResponseType]] = {}
+    securitySchemes: OptionalEmpty[dict[str, SecuritySchemeType]] = {}
 
     @model_validator(mode="before")
-    @classmethod
-    def _inject_schema_names(cls, v: dict, _info: ValidationInfo) -> dict:
+    def _inject_schema_names(cls, v: dict, _info: ValidationInfo) -> dict:  # noqa: N805
         if "schemas" in v:
             for k, schema in v["schemas"].items():
                 schema["name"] = k
@@ -58,8 +57,7 @@ class OpenAPI(_Base):
     security: OptionalEmpty[list[dict[str, list[str]]]] = Empty()
 
     @model_validator(mode="before")
-    @classmethod
-    def _inject_ctx(cls, v: dict, info: ValidationInfo) -> dict:
+    def _inject_ctx(cls, v: dict, info: ValidationInfo) -> dict:  # noqa: N805
         if info.context is None:
             msg = "context cannot be None when initializing"
             raise AttributeError(msg)

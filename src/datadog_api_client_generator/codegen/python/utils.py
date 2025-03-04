@@ -207,7 +207,7 @@ def type_to_python(schema: SchemaType, *, typing: bool = False):
 
 def return_type(operation: OperationObject):
     for response in operation.responses.values():
-        for content in response.content.values():
+        for content in response().content.values():
             if content.schema:
                 return type_to_python(content.schema)
         return
@@ -253,7 +253,7 @@ def get_type_at_path(operation: OperationObject, attribute_path: str):
     for code, response in operation.responses.items():
         if int(code) >= ERROR_STATUS_START:
             continue
-        for content in response.content.values():
+        for content in response().content.values():
             if content.schema():
                 break
     if content is None:
@@ -400,7 +400,7 @@ def get_typing_for_attribute(
 def get_types_for_attribute(schema: SchemaType, attribute: str, current_name: str | None = None) -> str | None:
     if isinstance(schema(), SchemaType):
         child_schema = schema().properties.get(attribute)()
-        base_type = get_type_for_attribute(schema, attribute, current_name)
+        base_type = get_type_for_attribute(schema, attribute, _current_name=current_name)
         if child_schema.nullable and not child_schema.name:
             return f"({base_type}, none_type)"
         return f"({base_type},)"
