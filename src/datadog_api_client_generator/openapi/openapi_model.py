@@ -4,17 +4,14 @@
 from __future__ import annotations
 
 from contextvars import ContextVar
-from typing import TYPE_CHECKING
 
 from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject, ResponseType
+from datadog_api_client_generator.openapi.parameter_model import ParameterType
+from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, SecuritySchemeType, Server, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
-
-if TYPE_CHECKING:
-    from datadog_api_client_generator.openapi.parameter_model import ParameterType
-    from datadog_api_client_generator.openapi.schema_model import SchemaType
 
 
 class OpenAPIContact(_Base):
@@ -36,8 +33,8 @@ class Components(_Base):
     responses: OptionalEmpty[dict[str, ResponseType]] = None
     securitySchemes: OptionalEmpty[dict[str, SecuritySchemeType]] = None
 
-    @classmethod
     @model_validator(mode="before")
+    @classmethod
     def _inject_schema_names(cls, v: dict, _info: ValidationInfo) -> dict:
         if "schemas" in v:
             for k, schema in v["schemas"].items():
@@ -60,8 +57,8 @@ class OpenAPI(_Base):
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     security: OptionalEmpty[list[dict[str, list[str]]]] = Empty()
 
-    @classmethod
     @model_validator(mode="before")
+    @classmethod
     def _inject_ctx(cls, v: dict, info: ValidationInfo) -> dict:
         if info.context is None:
             msg = "context cannot be None when initializing"

@@ -19,8 +19,8 @@ class _Base(BaseModel):
     extensions: dict[str, Any] = {}
     _root_openapi: ContextVar[OpenAPI] | None = None
 
-    @classmethod
     @model_validator(mode="before")
+    @classmethod
     def _remap_extensions(cls, v: Any) -> dict:
         if not isinstance(v, BaseModel) and callable(v.keys):
             # Remap extensions

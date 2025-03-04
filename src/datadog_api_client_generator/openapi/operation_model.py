@@ -3,14 +3,12 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterator, TypeAlias
+from typing import Any, Iterator, TypeAlias
 
 from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterType
+from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, RefObject, Server, _Base
 from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, Empty, OptionalEmpty, StrBool
-
-if TYPE_CHECKING:
-    from datadog_api_client_generator.openapi.schema_model import SchemaType
 
 
 class MediaObject(_Base):
