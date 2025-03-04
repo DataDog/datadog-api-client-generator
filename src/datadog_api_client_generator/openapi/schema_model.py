@@ -1,14 +1,18 @@
+# Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
-from typing import Any, Dict, List, Literal, Optional, Union, TypeAlias
 
-from datadog_api_client_generator.openapi.shared_model import _Base, RefObject
+from typing import Any, Literal, TypeAlias, Union
+
+from datadog_api_client_generator.openapi.shared_model import RefObject, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, StrBool
 
 
 class Schema(_Base):
     name: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
-    required: Optional[List[str]] = list()
+    required: list[str] = []
     type: OptionalEmpty[Literal["string", "number", "integer", "boolean", "array", "object"]] = Empty()
     format: OptionalEmpty[
         Literal["int32", "int64", "float", "double", "byte", "binary", "date", "date-time", "password", "email", "uuid"]
@@ -17,7 +21,7 @@ class Schema(_Base):
     example: OptionalEmpty[Any] = Empty()
     default: OptionalEmpty[Any] = Empty()
     nullable: OptionalEmpty[StrBool] = Empty()
-    additionalProperties: OptionalEmpty[Union[bool, SchemaType]] = Empty()
+    additionalProperties: OptionalEmpty[bool | SchemaType] = Empty()
     maxLength: OptionalEmpty[int] = Empty()
     minLength: OptionalEmpty[int] = Empty()
     maximum: OptionalEmpty[int] = Empty()
@@ -31,19 +35,18 @@ class Schema(_Base):
     writeOnly: OptionalEmpty[StrBool] = Empty()
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
-        if isinstance(self.additionalProperties, SchemaType):
-            if self.additionalProperties().name:
-                if self.additionalProperties().name in mapping:
-                    return mapping
-                mapping[self.additionalProperties().name] = self.additionalProperties()
+        if isinstance(self.additionalProperties, SchemaType) and self.additionalProperties().name:
+            if self.additionalProperties().name in mapping:
+                return mapping
+            mapping[self.additionalProperties().name] = self.additionalProperties()
 
-                if recursive:
-                    mapping.update(self.additionalProperties().schemas_by_name(mapping=mapping, recursive=recursive))
+            if recursive:
+                mapping.update(self.additionalProperties().schemas_by_name(mapping=mapping, recursive=recursive))
 
         if self.name and include_self:
             mapping[self.name] = self
@@ -52,11 +55,11 @@ class Schema(_Base):
 
 
 class OneOfSchema(Schema):
-    oneOf: List[SchemaType]
+    oneOf: list[SchemaType]
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -76,11 +79,11 @@ class OneOfSchema(Schema):
 
 
 class EnumSchema(Schema):
-    enum: List[Union[str, int, float]]
+    enum: list[str | int | float]
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, _recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -91,11 +94,11 @@ class EnumSchema(Schema):
 
 
 class AllOfSchema(Schema):
-    allOf: List[SchemaType]
+    allOf: list[SchemaType]
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -115,11 +118,11 @@ class AllOfSchema(Schema):
 
 
 class AnyOfSchema(Schema):
-    anyOf: List[SchemaType]
+    anyOf: list[SchemaType]
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -141,8 +144,8 @@ class ArraySchema(Schema):
     items: SchemaType
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -162,15 +165,15 @@ class ArraySchema(Schema):
 
 
 class ObjectSchema(Schema):
-    properties: Dict[str, SchemaType]
+    properties: dict[str, SchemaType]
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
-        for _, p in self.properties.items():
+        for p in self.properties.values():
             if p().name:
                 if p().name in mapping:
                     continue

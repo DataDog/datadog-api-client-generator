@@ -7,7 +7,7 @@ license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^2.5.3"
+pydantic = "^2.10.6"
 PyYAML = "^6.0"
 jsonref = "^1.1.0"
 click = "^8.1.7"
@@ -19,6 +19,7 @@ generate = "datadog_api_client_generator.cli:cli"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.3"
+ruff = "^0.9.9"
 
 [build-system]
 requires = ["poetry-core"]

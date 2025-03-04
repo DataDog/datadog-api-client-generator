@@ -1,12 +1,15 @@
+# Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
+from __future__ import annotations
+
 import keyword
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import m2r2
 
 from datadog_api_client_generator.codegen.shared.templates_env import snake_case
 from datadog_api_client_generator.codegen.shared.utils import camel_case
-from datadog_api_client_generator.openapi.operation_model import OperationObject
-from datadog_api_client_generator.openapi.parameter_model import Parameter
 from datadog_api_client_generator.openapi.schema_model import (
     ArraySchema,
     EnumSchema,
@@ -17,13 +20,15 @@ from datadog_api_client_generator.openapi.schema_model import (
 )
 from datadog_api_client_generator.openapi.utils import Empty
 
+if TYPE_CHECKING:
+    from datadog_api_client_generator.openapi.operation_model import OperationObject
+    from datadog_api_client_generator.openapi.parameter_model import Parameter
 
 KEYWORDS = set(keyword.kwlist)
 KEYWORDS.add("property")
 KEYWORDS.add("cls")
 
 EDGE_CASES = {"IdP": "Idp", "AuthNMapping": "AuthnMapping", "AuthN ": "Authn ", "IoT": "Iot", "SLOs": "Slos"}
-
 WHITELISTED_LIST_MODELS = {
     "v1": (
         "AgentCheck",
@@ -66,8 +71,8 @@ WHITELISTED_LIST_MODELS = {
         "TimeseriesResponseValuesList",
     ),
 }
-
 PRIMITIVE_TYPES = ["string", "number", "boolean", "integer"]
+ERROR_STATUS_START = 300
 
 
 def safe_snake_case(value: str) -> str:
@@ -77,8 +82,8 @@ def safe_snake_case(value: str) -> str:
 
 
 def escape_reserved_keyword(word: str) -> str:
-    """
-    Escape reserved language keywords like openapi generator does it
+    """Escape reserved language keywords like openapi generator does it.
+
     :param word: Word to escape
     :return: The escaped word if it was a reserved keyword, the word unchanged otherwise
     """
@@ -92,15 +97,15 @@ def attribute_name(attribute: str) -> str:
 
 
 class CustomRenderer(m2r2.RestRenderer):
-    def double_emphasis(self, text: Any) -> Any:
+    def double_emphasis(self, text: object) -> object:  # noqa: PLR6301
         if "``" in text:
             text = text.replace("\\ ``", "").replace("``\\ ", "")
         if "`_" in text:
             return text
-        return "\\ **{}**\\ ".format(text)
+        return f"\\ **{text}**\\ "
 
-    def header(self, text, level, raw=None) -> str:
-        return "\n{}\n".format(self.double_emphasis(text))
+    def header(self, text, _level, _raw=None) -> str:
+        return f"\n{self.double_emphasis(text)}\n"
 
 
 def docstring(text) -> Any:
@@ -113,7 +118,7 @@ def docstring(text) -> Any:
 
 
 def set_api_version(version):
-    global API_VERSION
+    global API_VERSION  # noqa: PLW0603
     API_VERSION = version
 
 
@@ -121,7 +126,7 @@ def is_list_model_whitelisted(name):
     return name in WHITELISTED_LIST_MODELS[API_VERSION]
 
 
-def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool = False):
+def basic_type_to_python(type_: str | None, schema: SchemaType, *, typing: bool = False):
     schema = schema()
     if not type_:
         if typing:
@@ -145,10 +150,10 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
     elif type_ == "array":
         subtype = type_to_python(schema.items(), typing=typing)
         if typing:
-            return "List[{}]".format(subtype)
+            return f"List[{subtype}]"
         if schema.items().nullable:
             subtype += ", none_type"
-        return "[{}]".format(subtype)
+        return f"[{subtype}]"
     elif type_ == "object":
         if not isinstance(schema.additionalProperties, Empty):
             nested_schema = schema.additionalProperties
@@ -159,14 +164,15 @@ def basic_type_to_python(type_: Optional[str], schema: SchemaType, typing: bool 
                 else:
                     nested_name += ", none_type"
             if typing:
-                return f"Dict[str, {nested_name}]"
-            return "{{str: ({},)}}".format(nested_name)
+                return f"dict[str, {nested_name}]"
+            return f"{{str: ({nested_name},)}}"
         return "dict"
     else:
-        raise ValueError(f"Unknown type {type_}")
+        msg = f"Unknown type {type_}"
+        raise ValueError(msg)
 
 
-def get_oneof_types(model: OneOfSchema, typing=False):
+def get_oneof_types(model: OneOfSchema, *, typing=False):
     for schema in model().oneOf:
         type_ = schema().type or "object"
         if type_ == "object" or is_list_model_whitelisted(schema().name):
@@ -175,7 +181,7 @@ def get_oneof_types(model: OneOfSchema, typing=False):
             yield basic_type_to_python(type_, schema(), typing=typing)
 
 
-def type_to_python(schema: SchemaType, typing: bool = False):
+def type_to_python(schema: SchemaType, *, typing: bool = False):
     """Return Python type name for the type."""
     schema = schema()
     if type(schema) == OneOfSchema:
@@ -201,13 +207,14 @@ def type_to_python(schema: SchemaType, typing: bool = False):
 
 def return_type(operation: OperationObject):
     for response in operation.responses.values():
-        for content in response.content.values():
+        for content in response().content.values():
             if content.schema:
                 return type_to_python(content.schema)
         return
+    return
 
 
-def get_type_for_parameter(parameter: Parameter, typing: bool = False):
+def get_type_for_parameter(parameter: Parameter, *, typing: bool = False):
     """Return Python type name for the parameter."""
     # if "content" in parameter:
     #     assert "in" not in parameter
@@ -218,19 +225,19 @@ def get_type_for_parameter(parameter: Parameter, typing: bool = False):
 
 def get_default(operation: OperationObject, attribute_path: str):
     attrs = attribute_path.split(".")
-    for name, parameter in operation.get_parameters():
+    for name, _parameter in operation.get_parameters():
         if name == attrs[0]:
             break
     if name == attribute_path:
         # We found a top level attribute matching the full path, let's use the default
-        return parameter().schema().default
+        return _parameter().schema().default
 
     if name == "body":
-        parameter = parameter().schema()
+        _parameter = _parameter().schema()
     for attr in attrs[1:]:
-        parameter = parameter().properties[attr]()
+        _parameter = _parameter().properties[attr]()
 
-    return parameter().default
+    return _parameter().default
 
 
 def attribute_path(attribute):
@@ -244,13 +251,14 @@ def get_type_for_items(schema: ArraySchema):
 def get_type_at_path(operation: OperationObject, attribute_path: str):
     content = None
     for code, response in operation.responses.items():
-        if int(code) >= 300:
+        if int(code) >= ERROR_STATUS_START:
             continue
-        for content in response.content.values():
+        for content in response().content.values():
             if content.schema():
                 break
     if content is None:
-        raise RuntimeError("Default response not found")
+        msg = "Default response not found"
+        raise RuntimeError(msg)
     content = content.schema()
     if not attribute_path:
         return get_type_for_items(content)
@@ -260,20 +268,18 @@ def get_type_at_path(operation: OperationObject, attribute_path: str):
     return get_type_for_items(content)
 
 
-def filter_models(models: Dict[str, SchemaType]) -> Dict[str, None]:
+def filter_models(models: dict[str, SchemaType]) -> dict[str, None]:
     for name in list(models.keys()):
-        if isinstance(models[name], ArraySchema):
-            if is_list_model_whitelisted(name):
-                continue
+        if isinstance(models[name], ArraySchema) and is_list_model_whitelisted(name):
+            continue
         if isinstance(models[name], EnumSchema):
             continue
         if isinstance(models[name], ObjectSchema):
             continue
         if isinstance(models[name], OneOfSchema):
             continue
-        if isinstance(models[name], Schema):
-            if models[name].additionalProperties:
-                continue
+        if isinstance(models[name], Schema) and models[name].additionalProperties:
+            continue
 
         del models[name]
 
@@ -291,11 +297,7 @@ def get_references_for_model(model: SchemaType, model_name: str):
     top_name = model().name or model_name
     if isinstance(model(), ObjectSchema):
         for key, definition in model().properties.items():
-            if (
-                definition().type == "object"
-                or isinstance(definition(), EnumSchema)
-                or isinstance(definition(), OneOfSchema)
-            ):
+            if isinstance(definition(), (EnumSchema, OneOfSchema)):
                 name = definition().name
                 if name:
                     result[name] = None
@@ -332,7 +334,7 @@ def get_references_for_model(model: SchemaType, model_name: str):
     return list(result)
 
 
-def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: Dict[str, str] = None):
+def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: dict[str, str] | None = None) -> list[str] | None:
     result = {}
     if seen is None:
         seen = set()
@@ -355,7 +357,7 @@ def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: Dic
                     result[sub_name] = None
 
     if isinstance(model(), ObjectSchema):
-        for key, definition in model().properties.items():
+        for definition in model().properties.values():
             result.update({k: None for k in get_oneof_references_for_model(definition(), model_name, seen)})
             if isinstance(definition(), ArraySchema):
                 result.update({k: None for k in get_oneof_references_for_model(definition().items(), model_name, seen)})
@@ -370,16 +372,18 @@ def get_oneof_references_for_model(model: SchemaType, model_name: str, seen: Dic
     return list(result)
 
 
-def get_type_for_attribute(schema: SchemaType, attribute: str, current_name: Optional[str] = None):
+def get_type_for_attribute(schema: SchemaType, attribute: str, _current_name: str | None = None) -> str | None:
     """Return Python type name for the attribute."""
     if isinstance(schema(), SchemaType):
         child_schema = schema().properties.get(attribute)
         return type_to_python(child_schema)
 
+    return
+
 
 def get_typing_for_attribute(
-    schema: SchemaType, attribute: str, current_name: Optional[str] = None, optional: Optional[str] = False
-):
+    schema: SchemaType, attribute: str, _current_name: str | None = None, *, optional: str | None = False
+) -> str | None:
     if isinstance(schema(), SchemaType):
         child_schema = schema().properties.get(attribute)()
         attr_type = type_to_python(child_schema, typing=True)
@@ -390,15 +394,18 @@ def get_typing_for_attribute(
                 return attr_type[:-1] + ", UnsetType]"
             return f"Union[{attr_type}, UnsetType]"
         return attr_type
+    return
 
 
-def get_types_for_attribute(schema: SchemaType, attribute: str, current_name: Optional[str] = None):
+def get_types_for_attribute(schema: SchemaType, attribute: str, current_name: str | None = None) -> str | None:
     if isinstance(schema(), SchemaType):
         child_schema = schema().properties.get(attribute)()
-        base_type = get_type_for_attribute(schema, attribute, current_name)
+        base_type = get_type_for_attribute(schema, attribute, _current_name=current_name)
         if child_schema.nullable and not child_schema.name:
             return f"({base_type}, none_type)"
         return f"({base_type},)"
+
+    return
 
 
 def format_value(value: Any, quotes: str = '"'):

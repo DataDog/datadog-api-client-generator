@@ -1,19 +1,24 @@
+# Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
+from __future__ import annotations
+
 import pathlib
-import re
-from typing import Any, Dict
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
+
 from datadog_api_client_generator.codegen.shared.utils import camel_case, snake_case
 
 
-def default_filters() -> Dict[str, Any]:
+def default_filters() -> dict[str, Any]:
     return {
         "camel_case": camel_case,
         "snake_case": snake_case,
     }
 
 
-def default_globals() -> Dict[str, Any]:
+def default_globals() -> dict[str, Any]:
     return {"enumerate": enumerate}
 
 

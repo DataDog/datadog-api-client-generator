@@ -12,7 +12,7 @@ class {{ name }}(ModelComposed):
 {%- for attr, definition, schema in get_oneof_parameters(model) %}
 {# keep new line #}
         :param {{ attr|attribute_name }}: {{ definition.description|indent(12) }}
-        :type {{ attr|attribute_name }}: {{ get_type_for_attribute(schema(), attr, current_name=name) }}{% if definition.nullable %}, none_type{% endif %}{% if attr not in schema().required %}, optional{% endif %}
+        :type {{ attr|attribute_name }}: {{ get_type_for_attribute(schema(), attr, _current_name=name) }}{% if definition.nullable %}, none_type{% endif %}{% if attr not in schema().required %}, optional{% endif %}
 {%- endfor %}
         """
         super().__init__(kwargs)
