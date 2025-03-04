@@ -1,6 +1,7 @@
 # Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2.0 License.
 #
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
+import logging
 import pathlib
 
 import click
@@ -9,6 +10,7 @@ from datadog_api_client_generator.codegen import GENERATORS
 from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 from datadog_api_client_generator.openapi.utils import load_yaml
 
+logger = logging.getLogger(__name__)
 
 @click.command()
 @click.argument(
@@ -24,7 +26,7 @@ from datadog_api_client_generator.openapi.utils import load_yaml
     required=True,
 )
 @click.option("-g", "--generator", type=click.Choice(list(GENERATORS.keys())), required=True)
-def cli(*args, **kwargs):
+def cli(*_args, **kwargs):
     generator_cls = GENERATORS[kwargs.get("generator")]
     generator = generator_cls()
 
@@ -36,6 +38,6 @@ def cli(*args, **kwargs):
         spec = OpenAPI.model_validate(spec, context={})
         specs[version] = spec
 
-    print("--------------------------------------------------------")
+    logging.info("--------------------------------------------------------")
     generator.generate(specs=specs, output=output)
-    print("--------------------------------------------------------")
+    logging.info("--------------------------------------------------------")

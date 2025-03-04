@@ -3,12 +3,15 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
 
-from pathlib import PosixPath
-from typing import List
+from typing import TYPE_CHECKING
 
 from datadog_api_client_generator.codegen.python import utils
 from datadog_api_client_generator.codegen.shared.base_codegen import BaseCodegen, GeneratorConfig
-from datadog_api_client_generator.openapi.openapi_model import OpenAPI
+
+if TYPE_CHECKING:
+    from pathlib import PosixPath
+
+    from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 PACKAGE_NAME = "datadog_api_client"
 
@@ -42,7 +45,7 @@ class PythonGenerator(BaseCodegen):
         },
     )
 
-    def generate(self, specs: List[OpenAPI], output: PosixPath) -> None:
+    def generate(self, specs: list[OpenAPI], output: PosixPath) -> None:
         api_j2 = self.env.get_template("api.j2")
         apis_j2 = self.env.get_template("apis.j2")
         model_j2 = self.env.get_template("model.j2")
