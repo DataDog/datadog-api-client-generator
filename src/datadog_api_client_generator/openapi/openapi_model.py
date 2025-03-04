@@ -4,15 +4,17 @@
 from __future__ import annotations
 
 from contextvars import ContextVar
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationInfo, model_validator
 
 from datadog_api_client_generator.openapi.operation_model import OperationObject, PathsItemObject, ResponseType
-from datadog_api_client_generator.openapi.parameter_model import ParameterType
-from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, SecuritySchemeType, Server, _Base
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty
+
+if TYPE_CHECKING:
+    from datadog_api_client_generator.openapi.parameter_model import ParameterType
+    from datadog_api_client_generator.openapi.schema_model import SchemaType
 
 
 class OpenAPIContact(_Base):
@@ -29,13 +31,14 @@ class OpenAPIInfo(_Base):
 
 
 class Components(_Base):
-    schemas: OptionalEmpty[Dict[str, SchemaType]] = {}
-    parameters: OptionalEmpty[Dict[str, ParameterType]] = {}
-    responses: OptionalEmpty[Dict[str, ResponseType]] = {}
-    securitySchemes: OptionalEmpty[Dict[str, SecuritySchemeType]] = {}
+    schemas: OptionalEmpty[dict[str, SchemaType]] = None
+    parameters: OptionalEmpty[dict[str, ParameterType]] = None
+    responses: OptionalEmpty[dict[str, ResponseType]] = None
+    securitySchemes: OptionalEmpty[dict[str, SecuritySchemeType]] = None
 
+    @classmethod
     @model_validator(mode="before")
-    def _inject_schema_names(cls, v: Dict, info: ValidationInfo) -> Dict:
+    def _inject_schema_names(cls, v: dict, _info: ValidationInfo) -> dict:
         if "schemas" in v:
             for k, schema in v["schemas"].items():
                 schema["name"] = k
@@ -50,29 +53,31 @@ class Tag(_Base):
 class OpenAPI(_Base):
     openapi: str
     info: OpenAPIInfo
-    paths: Dict[str, PathsItemObject]
+    paths: dict[str, PathsItemObject]
     components: OptionalEmpty[Components] = Empty()
-    servers: OptionalEmpty[List[Server]] = []
-    tags: OptionalEmpty[List[Tag]] = []
+    servers: OptionalEmpty[list[Server]] = None
+    tags: OptionalEmpty[list[Tag]] = None
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
-    security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
+    security: OptionalEmpty[list[dict[str, list[str]]]] = Empty()
 
+    @classmethod
     @model_validator(mode="before")
-    def _inject_ctx(cls, v: Dict, info: ValidationInfo) -> Dict:
+    def _inject_ctx(cls, v: dict, info: ValidationInfo) -> dict:
         if info.context is None:
-            raise AttributeError("context cannot be None when initializing")
+            msg = "context cannot be None when initializing"
+            raise AttributeError(msg)
         info.context["openapi"] = ContextVar(str(id(v)))
         return v
 
     @model_validator(mode="after")
-    def _inject_ctx_after(self, info: ValidationInfo) -> Dict:
+    def _inject_ctx_after(self, info: ValidationInfo) -> dict:
         info.context["openapi"].set(self)
         return self
 
-    def tags_by_name(self) -> Dict[str, Tag]:
+    def tags_by_name(self) -> dict[str, Tag]:
         return {tag.name: tag for tag in self.tags}
 
-    def group_apis_by_tag(self) -> Dict[str, List[str, str, OperationObject]]:
+    def group_apis_by_tag(self) -> dict[str, list[str, str, OperationObject]]:
         operations = {}
 
         for path in self.paths:
@@ -84,8 +89,8 @@ class OpenAPI(_Base):
         return operations
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 

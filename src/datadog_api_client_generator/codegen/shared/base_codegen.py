@@ -5,19 +5,22 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import PosixPath
-from typing import Any, Dict, List, Optional
-
-from jinja2 import Environment
+from typing import TYPE_CHECKING, Any
 
 from datadog_api_client_generator.codegen.shared.templates_env import build_default_jinja2_env
-from datadog_api_client_generator.openapi.openapi_model import OpenAPI
+
+if TYPE_CHECKING:
+    from pathlib import PosixPath
+
+    from jinja2 import Environment
+
+    from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
 @dataclass
 class GeneratorConfig:
-    additional_filters: Optional[Dict[str, Any]] = None
-    additional_globals: Optional[Dict[str, Any]] = None
+    additional_filters: dict[str, Any] | None = None
+    additional_globals: dict[str, Any] | None = None
 
 
 class BaseCodegen(ABC):
@@ -29,9 +32,8 @@ class BaseCodegen(ABC):
 
         if self.generator_config.additional_filters:
             self.env.filters.update(self.generator_config.additional_filters)
-        return
         if self.generator_config.additional_globals:
             self.env.globals.update(self.generator_config.additional_globals)
 
     @abstractmethod
-    def generate(self, specs: List[OpenAPI], output: PosixPath): ...
+    def generate(self, specs: list[OpenAPI], output: PosixPath): ...
