@@ -34,7 +34,6 @@ class Parameter(_Base):
         matrix = {
             ("form", False): "csv",
             ("form", True): "multi",
-            # TODO: add more cases from https://swagger.io/specification/#parameter-style
         }
         if isinstance(self.schema, ArraySchema):
             in_ = self.in_ or "query"

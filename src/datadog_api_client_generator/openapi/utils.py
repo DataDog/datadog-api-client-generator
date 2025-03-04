@@ -3,7 +3,7 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Annotated, TypeVar, Union
 
 import yaml
 from jinja2 import Undefined
@@ -29,10 +29,10 @@ class Empty(Undefined):
 
     def __copy__(self): ...
 
-    def __deepcopy__(self, memo: Any): ...
+    def __deepcopy__(self, memo: object): ...
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> any:  # noqa: PLW3201
+    def __get_pydantic_core_schema__(cls, source_type: object, handler: GetCoreSchemaHandler) -> any:  # noqa: PLW3201
         return core_schema.any_schema()
 
 

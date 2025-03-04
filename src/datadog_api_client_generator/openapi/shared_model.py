@@ -20,7 +20,7 @@ class _Base(BaseModel):
     _root_openapi: ContextVar[OpenAPI] | None = None
 
     @model_validator(mode="before")
-    def _remap_extensions(cls, v: Any) -> dict:  # noqa: N805
+    def _remap_extensions(cls, v: object) -> dict:  # noqa: N805
         if not isinstance(v, BaseModel) and callable(v.keys):
             # Remap extensions
             extensions = v.get("extensions", {})
@@ -33,7 +33,7 @@ class _Base(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def _inject_ctx_after(self, v: Any) -> dict:
+    def _inject_ctx_after(self, v: object) -> dict:
         if v.context:
             self._root_openapi = v.context.get("openapi")
 
@@ -50,7 +50,7 @@ class RefObject(_Base):
     _resolved_ref: Any = None
 
     @model_validator(mode="before")
-    def _inject_ref_properties(cls, v: Any) -> dict:  # noqa: N805
+    def _inject_ref_properties(cls, v: object) -> dict:  # noqa: N805
         if "$ref" in v:
             path, name = get_name_and_path_from_ref(v["$ref"])
             v["ref_components_path"] = path

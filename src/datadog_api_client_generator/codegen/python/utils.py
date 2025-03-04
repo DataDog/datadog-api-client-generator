@@ -97,7 +97,7 @@ def attribute_name(attribute: str) -> str:
 
 
 class CustomRenderer(m2r2.RestRenderer):
-    def double_emphasis(self, text: Any) -> Any:  # noqa: PLR6301
+    def double_emphasis(self, text: object) -> object:  # noqa: PLR6301
         if "``" in text:
             text = text.replace("\\ ``", "").replace("``\\ ", "")
         if "`_" in text:
