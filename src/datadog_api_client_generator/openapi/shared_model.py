@@ -3,23 +3,25 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
 
-from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 from pydantic import BaseModel, Field, model_validator
 
 from datadog_api_client_generator.openapi.utils import Empty, OptionalEmpty, get_name_and_path_from_ref
 
 if TYPE_CHECKING:
+    from contextvars import ContextVar
+
     from datadog_api_client_generator.openapi.openapi_model import OpenAPI
 
 
 class _Base(BaseModel):
-    extensions: Dict[str, Any] = {}
-    _root_openapi: Optional[ContextVar[OpenAPI]] = None
+    extensions: dict[str, Any] = {}
+    _root_openapi: ContextVar[OpenAPI] | None = None
 
+    @classmethod
     @model_validator(mode="before")
-    def _remap_extensions(cls, v: Any) -> Dict:
+    def _remap_extensions(cls, v: Any) -> dict:
         if not isinstance(v, BaseModel) and callable(v.keys):
             # Remap extensions
             extensions = v.get("extensions", {})
@@ -32,13 +34,13 @@ class _Base(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def _inject_ctx_after(self, v: Any) -> Dict:
+    def _inject_ctx_after(self, v: Any) -> dict:
         if v.context:
             self._root_openapi = v.context.get("openapi")
 
         return self
 
-    def __call__(self, *args: Any, **kwds: Any) -> Any:
+    def __call__(self) -> Any:
         return self
 
 
@@ -48,8 +50,9 @@ class RefObject(_Base):
     ref_components_path: str
     _resolved_ref: Any = None
 
+    @classmethod
     @model_validator(mode="before")
-    def _inject_ref_properties(cls, v: Any) -> Dict:
+    def _inject_ref_properties(cls, v: Any) -> dict:
         if "$ref" in v:
             path, name = get_name_and_path_from_ref(v["$ref"])
             v["ref_components_path"] = path
@@ -65,8 +68,8 @@ class RefObject(_Base):
         return self._resolved_ref
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, Any]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, Any]:
+        self, mapping: dict[str, Any] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, Any]:
         if mapping is None:
             mapping = {}
 
@@ -87,23 +90,23 @@ class ExternalDocs(_Base):
 class ServerVariable(_Base):
     default: str
     description: OptionalEmpty[str] = Empty()
-    enum: Optional[List[str]] = []
+    enum: list[str] | None = []
 
 
 class Server(_Base):
     url: str
     description: OptionalEmpty[str] = Empty()
-    variables: Optional[Dict[str, ServerVariable]] = {}
+    variables: dict[str, ServerVariable] | None = {}
 
 
 class SecurityScheme(_Base):
     type: str
     name: str
     scheme: str
-    in_: Optional[str] = Field(alias="in")
+    in_: str | None = Field(alias="in")
     description: OptionalEmpty[str] = Empty()
     bearerFormat: OptionalEmpty[str] = Empty()
-    flows: OptionalEmpty[Dict] = Empty()
+    flows: OptionalEmpty[dict] = Empty()
     openIdConnectUrl: OptionalEmpty[str] = Empty()
 
 

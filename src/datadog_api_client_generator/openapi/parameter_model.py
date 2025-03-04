@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Literal, Optional, TypeAlias, Union
+from typing import Any, Literal, TypeAlias, Union
 
 from pydantic import Field
 
@@ -34,18 +34,22 @@ class Parameter(_Base):
         matrix = {
             ("form", False): "csv",
             ("form", True): "multi",
-            # TODO add more cases from https://swagger.io/specification/#parameter-style
+            # TODO: add more cases from https://swagger.io/specification/#parameter-style
         }
         if isinstance(self.schema, ArraySchema):
             in_ = self.in_ or "query"
             style = self.style if self.style else in_to_style[in_]
-            explode = self.explode if self.explode is not None else True if style == "form" else False
+            explode = self.explode
+            if self.explode is None:
+                explode = style == "form"
 
             return matrix.get((style, explode), "multi")
 
+        return ""
+
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 

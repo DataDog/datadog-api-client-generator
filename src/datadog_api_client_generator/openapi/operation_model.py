@@ -3,12 +3,14 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/  Copyright 2025 Datadog, Inc.
 from __future__ import annotations
 
-from typing import Any, Dict, Iterator, List, Optional, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Iterator, TypeAlias
 
 from datadog_api_client_generator.openapi.parameter_model import Parameter, ParameterType
-from datadog_api_client_generator.openapi.schema_model import SchemaType
 from datadog_api_client_generator.openapi.shared_model import ExternalDocs, RefObject, Server, _Base
 from datadog_api_client_generator.openapi.utils import HEADER_ANY_TYPE, Empty, OptionalEmpty, StrBool
+
+if TYPE_CHECKING:
+    from datadog_api_client_generator.openapi.schema_model import SchemaType
 
 
 class MediaObject(_Base):
@@ -17,31 +19,31 @@ class MediaObject(_Base):
 
 
 class RequestBody(_Base):
-    content: Dict[str, MediaObject]
+    content: dict[str, MediaObject]
     description: OptionalEmpty[str] = Empty()
     required: OptionalEmpty[StrBool] = Empty()
 
 
 class ResponseObject(_Base):
-    content: OptionalEmpty[Dict[str, MediaObject]] = {}
+    content: OptionalEmpty[dict[str, MediaObject]] = None
     description: OptionalEmpty[str] = None
 
 
-ResponseType: TypeAlias = Union[RefObject, ResponseObject]
+ResponseType: TypeAlias = RefObject | ResponseObject
 
 
 class OperationObject(_Base):
-    tags: OptionalEmpty[List[str]] = []
+    tags: OptionalEmpty[list[str]] = None
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
     operationId: OptionalEmpty[str] = Empty()
-    parameters: OptionalEmpty[List[ParameterType]] = []
+    parameters: OptionalEmpty[list[ParameterType]] = None
     deprecated: OptionalEmpty[StrBool] = Empty()
     externalDocs: OptionalEmpty[ExternalDocs] = Empty()
     requestBody: OptionalEmpty[RequestBody] = Empty()
-    responses: OptionalEmpty[Dict[str, ResponseType]] = {}
-    servers: OptionalEmpty[List[Server]] = []
-    security: OptionalEmpty[List[Dict[str, List[str]]]] = Empty()
+    responses: OptionalEmpty[dict[str, ResponseType]] = None
+    servers: OptionalEmpty[list[Server]] = None
+    security: OptionalEmpty[list[dict[str, list[str]]]] = Empty()
 
     def get_parameters(self) -> Iterator[str, ParameterType]:
         if self.parameters:
@@ -85,11 +87,11 @@ class OperationObject(_Base):
                         )
                     break
 
-    def get_accept_headers(self) -> List[str]:
+    def get_accept_headers(self) -> list[str]:
         seen = []
         for response in self.responses.values():
             if response().content:
-                for media_type in response().content.keys():
+                for media_type in response().content:
                     if media_type not in seen:
                         seen.append(media_type)
             else:
@@ -97,16 +99,17 @@ class OperationObject(_Base):
 
         return seen
 
-    def get_return_schema(self) -> Optional[SchemaType]:
+    def get_return_schema(self) -> SchemaType | None:
         for response in self.responses.values():
             for content in response().content.values():
                 if content.schema:
                     return content.schema()
             return None
+        return None
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
@@ -142,8 +145,8 @@ class OperationObject(_Base):
 class PathsItemObject(_Base):
     summary: OptionalEmpty[str] = Empty()
     description: OptionalEmpty[str] = Empty()
-    servers: OptionalEmpty[List[Server]] = []
-    parameters: OptionalEmpty[List[ParameterType]] = []
+    servers: OptionalEmpty[list[Server]] = None
+    parameters: OptionalEmpty[list[ParameterType]] = None
     get: OptionalEmpty[OperationObject] = Empty()
     put: OptionalEmpty[OperationObject] = Empty()
     post: OptionalEmpty[OperationObject] = Empty()
@@ -154,8 +157,8 @@ class PathsItemObject(_Base):
     trace: OptionalEmpty[OperationObject] = Empty()
 
     def schemas_by_name(
-        self, mapping: Optional[Dict[str, SchemaType]] = None, recursive: bool = True, include_self: bool = True
-    ) -> Dict[str, SchemaType]:
+        self, mapping: dict[str, SchemaType] | None = None, *, recursive: bool = True, include_self: bool = True
+    ) -> dict[str, SchemaType]:
         if mapping is None:
             mapping = {}
 
