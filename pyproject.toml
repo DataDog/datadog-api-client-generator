@@ -21,34 +21,6 @@ generate = "datadog_api_client_generator.cli:cli"
 pytest = "^7.4.3"
 ruff = "^0.9.9"
 
-[tool.ruff]
-line-length = 120
-
-[tool.ruff.lint]
-select = [
-    "A",
-    "B",
-    "C4",
-    "D",
-    "E",
-    "F",
-    "G",
-    "I",
-    "W",
-]
-ignore = [
-    "A003",
-    "D100",
-    "D101",
-    "D102",
-    "D103",
-    "D104",
-    "D105",
-]
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
